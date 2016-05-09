@@ -27,7 +27,7 @@ install:
   # Finally, the standard install step.
   - moodle-plugin-ci add-plugin netspotau/moodle-mod_engagement
   - moodle-plugin-ci add-plugin danmarsden/moodle-engagementindicator_attendance
-  - moodle-plugin-ci install
+  - moodle-plugin-ci install -vvv
 
 script:
   - composer validate
