@@ -64,7 +64,7 @@ class Moodle
         }
         if (!defined('ABORT_AFTER_CONFIG')) {
             // Need this since Moodle will not be fully installed.
-            define('ABORT_AFTER_CONFIG', true);
+            //define('ABORT_AFTER_CONFIG', true);
         }
         $path = $this->directory.'/config.php';
 
@@ -109,6 +109,11 @@ class Moodle
 
         /* @noinspection PhpUndefinedClassInspection */
         $types = \core_component::get_plugin_types();
+        var_dump($types);
+
+        $pluginman = \core_plugin_manager::instance();
+        $plugintypepath = $pluginman->get_plugintype_root($type);
+        var_dump($plugintypepath);
 
         if (!array_key_exists($type, $types)) {
             throw new \InvalidArgumentException(sprintf('The component %s has an unknown plugin type of %s', $component, $type));
