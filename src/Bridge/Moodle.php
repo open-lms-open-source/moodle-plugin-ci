@@ -107,19 +107,27 @@ class Moodle
     {
         list($type, $name) = $this->normalizeComponent($component);
 
-        /* @noinspection PhpUndefinedClassInspection */
-        $types = \core_component::get_plugin_types();
-        var_dump($types);
+//        $class = new \ReflectionClass('core_component');
 
-        $pluginman = \core_plugin_manager::instance();
-        $plugintypepath = $pluginman->get_plugintype_root($type);
-        var_dump($plugintypepath);
+        $method = new \ReflectionMethod('core_component', 'fetch_plugintypes');
 
-        if (!array_key_exists($type, $types)) {
+//        $method = $class->getMethod('fetch_plugintypes');
+        $method->setAccessible(true);
+        $result = $method->invoke(null);
+
+//        /* @noinspection PhpUndefinedClassInspection */
+//        $types = \core_component::get_plugin_types();
+//        var_dump($types);
+//
+//        $pluginman = \core_plugin_manager::instance();
+//        $plugintypepath = $pluginman->get_plugintype_root($type);
+//        var_dump($plugintypepath);
+
+        if (!array_key_exists($type, $result[0])) {
             throw new \InvalidArgumentException(sprintf('The component %s has an unknown plugin type of %s', $component, $type));
         }
 
-        return $types[$type].'/'.$name;
+        return $result[0][$type].'/'.$name;
     }
 
     /**
