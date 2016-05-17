@@ -54,6 +54,7 @@ added the `.travis.yml` file, commit and push up to GitHub, to trigger a Travis 
 * [Ignoring files](doc/IgnoringFiles.md)
 * [Testing a plugin against PHP7](doc/PHP7.md)
 * [Generating code coverage](doc/CodeCoverage.md)
+* [POET Group](doc/POET.md)
 
 # Usage / Versioning
 

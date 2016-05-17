@@ -5,7 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 The format of this change log follows the advice given at [Keep a CHANGELOG](http://keepachangelog.com).
 
 ## [Unreleased]
-No unreleased changes.
+### Added
+- POET Group coding standard.  See `doc/POET.md` for details.
 
 ## [1.5.7] - 2017-02-06
 ### Fixed

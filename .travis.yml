@@ -56,6 +56,7 @@ script:
   - moodle-plugin-ci phpcpd
   - moodle-plugin-ci phpmd
   - moodle-plugin-ci codechecker
+  - moodle-plugin-ci codechecker --standard poet
   - moodle-plugin-ci csslint
   - moodle-plugin-ci shifter
   - moodle-plugin-ci jshint

@@ -24,6 +24,7 @@ class StandardResolverTest extends \PHPUnit_Framework_TestCase
     {
         $resolver = new StandardResolver();
         $this->assertTrue($resolver->hasStandard('moodle'));
+        $this->assertTrue($resolver->hasStandard('poet'));
         $this->assertFalse($resolver->hasStandard('foo'));
 
         $resolver = new StandardResolver(['foo' => []]);
@@ -35,6 +36,7 @@ class StandardResolverTest extends \PHPUnit_Framework_TestCase
     {
         $resolver = new StandardResolver();
         $this->assertNotEmpty($resolver->resolve('moodle'));
+        $this->assertNotEmpty($resolver->resolve('poet'));
     }
 
     /**

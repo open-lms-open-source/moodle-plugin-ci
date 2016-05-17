@@ -34,8 +34,12 @@ class StandardResolver
     {
         $defaultStandards = [
             'moodle' => [
-                __DIR__.'/../../../moodlerooms/moodle-coding-standard/moodle', // Global Composer install.
                 __DIR__.'/../vendor/moodlerooms/moodle-coding-standard/moodle', // Local Composer install.
+                __DIR__.'/../../../moodlerooms/moodle-coding-standard/moodle', // Global Composer install.
+            ],
+            'poet' => [
+                __DIR__.'/../vendor/poetgroup/poet-coding-standard/POET', // Local Composer install.
+                __DIR__.'/../../../poetgroup/poet-coding-standard/POET', // Global Composer install.
             ],
         ];
 
