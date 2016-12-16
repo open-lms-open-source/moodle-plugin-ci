@@ -1,5 +1,3 @@
-image: php:5.6
-
 services:
  - mysql:latest
 
@@ -8,7 +6,6 @@ cache:
  - $HOME/.composer/cache
 
 variables:
- MOODLE_BRANCH: "MOODLE_29_STABLE"
  DB: "mysqli"
  MYSQL_ROOT_PASSWORD: "superrootpass"
  TRAVIS_BUILD_DIR: "$CI_PROJECT_DIR"
@@ -35,15 +32,21 @@ before_script:
  - umask u+x
  - moodle-plugin-ci install --db-user=root --db-pass=superrootpass --db-host=mysql -vvv
 
-job1:
+.job_template: &job_definition
  script:
- - moodle-plugin-ci phplint
- - moodle-plugin-ci phpcpd
- - moodle-plugin-ci phpmd
- - moodle-plugin-ci codechecker
- - moodle-plugin-ci csslint
- - moodle-plugin-ci shifter
- - moodle-plugin-ci jshint
- - moodle-plugin-ci validate
- - moodle-plugin-ci phpunit
- - moodle-plugin-ci behat
+  - moodle-plugin-ci phplint
+  - moodle-plugin-ci phpcpd
+  - moodle-plugin-ci phpmd
+  - moodle-plugin-ci codechecker
+  - moodle-plugin-ci csslint
+  - moodle-plugin-ci shifter
+  - moodle-plugin-ci jshint
+  - moodle-plugin-ci validate
+  - moodle-plugin-ci phpunit
+  - moodle-plugin-ci behat
+
+job1:
+ <<: *job_definition
+ image: php:7.0
+ variables:
+  MOODLE_BRANCH: "MOODLE_32_STABLE"
