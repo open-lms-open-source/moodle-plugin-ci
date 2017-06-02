@@ -1,0 +1,50 @@
+image: php:5.6
+
+services:
+ - mysql:latest
+
+cache:
+ paths:
+ - $HOME/.composer/cache
+
+variables:
+ MOODLE_BRANCH: "MOODLE_29_STABLE"
+ DB: "mysqli"
+ MYSQL_ROOT_PASSWORD: "superrootpass"
+ TRAVIS_BUILD_DIR: "$CI_PROJECT_DIR"
+
+before_script:
+ # Several tools complain about xdebug slowdown.
+ #- phpenv config-rm xdebug.ini
+ # Install php-gd
+ - apt-get update
+ - apt-get install -y git libfreetype6-dev libjpeg62-turbo-dev libmcrypt-dev libpng12-dev libicu-dev g++ mysql-client php5-mysql npm
+ - docker-php-ext-install -j$(nproc) iconv mcrypt intl zip mysqli
+ - docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
+ - docker-php-ext-install -j$(nproc) gd
+ # Install phpunit.
+ - curl -o /usr/local/bin/phpunit https://phar.phpunit.de/phpunit.phar
+ - chmod +x /usr/local/bin/phpunit
+ - cd ../..
+ # Install composer.
+ - curl -sS https://getcomposer.org/installer | php
+ - mv composer.phar /usr/local/bin/composer
+ - composer create-project -n --no-dev moodlerooms/moodle-plugin-ci ci ^1
+ - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
+ - chmod u+x /builds/ci/bin/moodle-plugin-ci
+ - chmod u+x /builds/ci/bin/*
+ - umask u+x
+ - moodle-plugin-ci install --db-user=root --db-pass=superrootpass --db-host=mysql -vvv
+
+job1:
+ script:
+ - moodle-plugin-ci phplint
+ - moodle-plugin-ci phpcpd
+ - moodle-plugin-ci phpmd
+ - moodle-plugin-ci codechecker
+ - moodle-plugin-ci csslint
+ - moodle-plugin-ci shifter
+ - moodle-plugin-ci jshint
+ - moodle-plugin-ci validate
+ - moodle-plugin-ci phpunit
+ - moodle-plugin-ci behat
