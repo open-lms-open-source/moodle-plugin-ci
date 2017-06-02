@@ -1,0 +1,52 @@
+services:
+ - mysql:latest
+
+cache:
+ paths:
+ - $HOME/.composer/cache
+
+variables:
+ DB: "mysqli"
+ MYSQL_ROOT_PASSWORD: "superrootpass"
+ TRAVIS_BUILD_DIR: "$CI_PROJECT_DIR"
+
+before_script:
+ # Install php-gd
+ - apt-get update
+ - apt-get install -y git libfreetype6-dev libjpeg62-turbo-dev libmcrypt-dev libpng12-dev libicu-dev g++ mysql-client php5-mysql npm
+ - ln -s "$(which nodejs)" /usr/bin/node
+ - docker-php-ext-install -j$(nproc) iconv mcrypt intl zip mysqli
+ - docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
+ - docker-php-ext-install -j$(nproc) gd
+ # Install phpunit.
+ - curl -o /usr/local/bin/phpunit https://phar.phpunit.de/phpunit.phar
+ - chmod +x /usr/local/bin/phpunit
+ - cd ../..
+ # Install composer.
+ - curl -sS https://getcomposer.org/installer | php
+ - mv composer.phar /usr/local/bin/composer
+ - composer create-project -n --no-dev moodlerooms/moodle-plugin-ci ci ^1
+ - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
+ - chmod u+x /builds/ci/bin/moodle-plugin-ci
+ - chmod u+x /builds/ci/bin/*
+ - umask u+x
+ - moodle-plugin-ci install --db-user=root --db-pass=superrootpass --db-host=mysql -vvv
+
+.job_template: &job_definition
+ script:
+  - moodle-plugin-ci phplint
+  - moodle-plugin-ci phpcpd
+  - moodle-plugin-ci phpmd
+  - moodle-plugin-ci codechecker
+  - moodle-plugin-ci csslint
+  - moodle-plugin-ci shifter
+  - moodle-plugin-ci jshint
+  - moodle-plugin-ci validate
+  - moodle-plugin-ci phpunit
+  - moodle-plugin-ci behat
+
+job1:
+ <<: *job_definition
+ image: php:7.0
+ variables:
+  MOODLE_BRANCH: "MOODLE_32_STABLE"
