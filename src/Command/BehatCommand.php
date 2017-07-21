@@ -31,7 +31,7 @@ class BehatCommand extends AbstractMoodleCommand
      *
      * @var int
      */
-    public $seleniumWaitTime = 5000000;
+    public $seleniumWaitTime = 10000000;
 
     /**
      * @var Process[]
