@@ -45,7 +45,7 @@ class MoodleConfig
             '{{PHPUNITDATAROOT}}' => $dataDir.'/phpu_moodledata',
             '{{BEHATDATAROOT}}'   => $dataDir.'/behat_moodledata',
             '{{BEHATDUMP}}'       => $dataDir.'/behat_dump',
-            '{{BEHATWWWROOT}}'    => 'http://localhost:8000',
+            '{{BEHATWWWROOT}}'    => 'http://localhost:9090',
             '{{EXTRACONFIG}}'     => self::PLACEHOLDER,
         ];
 

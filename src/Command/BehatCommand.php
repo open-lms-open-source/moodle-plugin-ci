@@ -118,7 +118,7 @@ class BehatCommand extends AbstractMoodleCommand
         $selenium->disableOutput();
         $selenium->start();
 
-        $web = new Process(sprintf('php -S localhost:8000 > %s/phpserver', $this->moodle->directory), $this->moodle->directory);
+        $web = new Process(sprintf('php -S localhost:9090 > %s/phpserver', $this->moodle->directory), $this->moodle->directory);
         $web->setTimeout(0);
         $web->disableOutput();
         $web->start();
