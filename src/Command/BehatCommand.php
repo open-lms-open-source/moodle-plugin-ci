@@ -133,6 +133,8 @@ class BehatCommand extends AbstractMoodleCommand
 
         // Need to wait for Selenium to start up.  Not really sure how long that takes.
         usleep($this->seleniumWaitTime);
+
+        $this->execute->mustRun('curl http://localhost:8080');
     }
 
     private function stopServerProcesses()
