@@ -31,7 +31,7 @@ class BehatCommand extends AbstractMoodleCommand
      *
      * @var int
      */
-    public $seleniumWaitTime = 5000000;
+    public $seleniumWaitTime = 10000000;
 
     /**
      * @var Process[]
@@ -113,12 +113,18 @@ class BehatCommand extends AbstractMoodleCommand
             $cmd .= ' -Dwebdriver.chrome.driver='.$driver;
         }
 
+        echo $cmd.PHP_EOL;
+
         $selenium = new Process($cmd);
         $selenium->setTimeout(0);
         $selenium->disableOutput();
         $selenium->start();
 
-        $web = new Process(sprintf('php -S localhost:8080 > %s/phpserver', $this->moodle->directory), $this->moodle->directory);
+        $sprintf = sprintf('php -S localhost:8080 > %s/phpserver', $this->moodle->directory);
+
+        echo $sprintf.PHP_EOL;
+
+        $web     = new Process($sprintf, $this->moodle->directory);
         $web->setTimeout(0);
         $web->disableOutput();
         $web->start();
