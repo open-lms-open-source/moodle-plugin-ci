@@ -29,10 +29,12 @@ env:
 #    - PROFILE=chrome
 
 install:
+  - lsof -P
+  - netstat -tulpn
   - phpenv config-rm xdebug.ini
   - nvm install 8.9
   - nvm use 8.9
-  - make init
+#  - make init
 
   # Mimic how a Moodle plugin would be run.
   - cp -R tests/Fixture/moodle-local_travis ../moodle-local_travis
@@ -40,9 +42,12 @@ install:
   - export TRAVIS_BUILD_DIR=$(cd ../moodle-local_travis; pwd)
 
   # Finally, the standard install step.
-  - moodle-plugin-ci install
+#  - moodle-plugin-ci install
 
 script:
+  - lsof -P
+  - netstat -tulpn
+  - php -S localhost:8080
 #  - make test-phpunit
 
 #  - curl -o s.jar http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.1.jar
@@ -58,7 +63,7 @@ script:
 #  - moodle-plugin-ci mustache
 #  - moodle-plugin-ci grunt
 #  - moodle-plugin-ci phpunit --coverage-text
-  - moodle-plugin-ci behat -vvv --dump
-  - cat moodle/seleniumserver
-  - cat moodle/phpserver
-  - php -S localhost:9090
+#  - moodle-plugin-ci behat -vvv --dump
+#  - cat moodle/seleniumserver
+#  - cat moodle/phpserver
+#  - php -S localhost:9090
