@@ -22,7 +22,7 @@ php:
 
 env:
  global:
-  - MOODLE_BRANCH=MOODLE_32_STABLE
+  - MOODLE_BRANCH=MOODLE_34_STABLE
  matrix:
   - DB=pgsql
   - DB=mysqli
@@ -35,17 +35,32 @@ before_install:
   - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
 
+jobs:
+  include:
+    # Prechecks against one configuration (Moodle, PHP, DB) only.
+    - stage: prechecks
+      php: 7.1
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_34_STABLE
+      install:
+      - moodle-plugin-ci install --no-init
+      script:
+      - moodle-plugin-ci phplint
+      - moodle-plugin-ci phpcpd
+      - moodle-plugin-ci phpmd
+      - moodle-plugin-ci codechecker
+      - moodle-plugin-ci validate
+      - moodle-plugin-ci savepoints
+      - moodle-plugin-ci mustache
+      - moodle-plugin-ci grunt
+
+# Unit tests and behat tests against full matrix (Implicit "test" stage).
 install:
   - moodle-plugin-ci install
 
 script:
-  - moodle-plugin-ci phplint
-  - moodle-plugin-ci phpcpd
-  - moodle-plugin-ci phpmd
-  - moodle-plugin-ci codechecker
-  - moodle-plugin-ci validate
-  - moodle-plugin-ci savepoints
-  - moodle-plugin-ci mustache
-  - moodle-plugin-ci grunt
   - moodle-plugin-ci phpunit
   - moodle-plugin-ci behat
+
+stages:
+- prechecks
+- test
