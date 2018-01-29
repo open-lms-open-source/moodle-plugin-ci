@@ -9,7 +9,7 @@ addons:
     packages:
       - oracle-java8-installer
       - oracle-java8-set-default
-      - chromium-chromedriver
+#      - chromium-chromedriver
 
 cache:
   directories:
@@ -26,7 +26,7 @@ env:
     - MUSTACHE_IGNORE_NAMES=broken.mustache
     - DB=pgsql
     - MOODLE_BRANCH=master
-    - PROFILE=chrome
+#    - PROFILE=chrome
 
 install:
   - phpenv config-rm xdebug.ini
@@ -61,3 +61,4 @@ script:
   - moodle-plugin-ci behat -vvv --dump
   - cat moodle/seleniumserver
   - cat moodle/phpserver
+  - php -S localhost:8000
