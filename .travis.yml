@@ -31,6 +31,7 @@ env:
 install:
 #  - lsof -P
 #  - netstat -tulpn
+  - unset _JAVA_OPTIONS
   - firefox --version
   - phpenv config-rm xdebug.ini
   - nvm install 8.9
