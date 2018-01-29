@@ -29,8 +29,8 @@ env:
 #    - PROFILE=chrome
 
 install:
-  - lsof -P
-  - netstat -tulpn
+#  - lsof -P
+#  - netstat -tulpn
   - phpenv config-rm xdebug.ini
   - nvm install 8.9
   - nvm use 8.9
@@ -45,8 +45,12 @@ install:
 #  - moodle-plugin-ci install
 
 script:
-  - lsof -P
+#  - lsof -P
   - netstat -tulpn
+  - ruby -rsocket -e 'TCPSocket.new("localhost",8000)'
+  - ruby -rsocket -e 'TCPSocket.new("localhost",9090)'
+  - php -S localhost:8000
+  - php -S localhost:9090
   - php -S localhost:8080
 #  - make test-phpunit
 
