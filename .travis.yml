@@ -32,7 +32,7 @@ install:
   - phpenv config-rm xdebug.ini
   - nvm install 8.9
   - nvm use 8.9
-#  - make init
+  - make init
 
   # Mimic how a Moodle plugin would be run.
   - cp -R tests/Fixture/moodle-local_travis ../moodle-local_travis
@@ -40,13 +40,13 @@ install:
   - export TRAVIS_BUILD_DIR=$(cd ../moodle-local_travis; pwd)
 
   # Finally, the standard install step.
-#  - moodle-plugin-ci install
+  - moodle-plugin-ci install
 
 script:
 #  - make test-phpunit
 
-  - curl -o s.jar http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.1.jar
-  - xvfb-run -a --server-args="-screen 0 1024x768x24" java -jar s.jar
+#  - curl -o s.jar http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.1.jar
+#  - xvfb-run -a --server-args="-screen 0 1024x768x24" java -jar s.jar
 
   # This is basically "integration" testing.
 #  - moodle-plugin-ci phplint
@@ -58,4 +58,6 @@ script:
 #  - moodle-plugin-ci mustache
 #  - moodle-plugin-ci grunt
 #  - moodle-plugin-ci phpunit --coverage-text
-#  - moodle-plugin-ci behat --profile $PROFILE
+  - moodle-plugin-ci behat -vvv --dump
+  - cat moodle/seleniumserver
+  - cat moodle/phpserver
