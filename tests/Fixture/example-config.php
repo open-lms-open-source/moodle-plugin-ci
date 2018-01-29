@@ -34,7 +34,7 @@ $CFG->phpunit_dataroot = '/path/to/moodledata/phpu_moodledata';
 // Behat settings.
 $CFG->behat_prefix        = 'behat_';
 $CFG->behat_dataroot      = '/path/to/moodledata/behat_moodledata';
-$CFG->behat_wwwroot       = 'http://localhost:8000';
+$CFG->behat_wwwroot       = 'http://localhost:8080';
 $CFG->behat_faildump_path = '/path/to/moodledata/behat_dump';
 $CFG->behat_profiles      = [
     'default' => [
