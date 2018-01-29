@@ -49,8 +49,9 @@ install:
 script:
 #  - lsof -P
   - netstat -tulpn
-  - ruby -rsocket -e 'TCPSocket.new("localhost",8000)'
-  - ruby -rsocket -e 'TCPSocket.new("localhost",9090)'
+#  - ruby -rsocket -e 'TCPSocket.new("localhost",8000)'
+#  - ruby -rsocket -e 'TCPSocket.new("localhost",9090)'
+  - php -r "file_put_contents(__DIR__.'/moodle/lib/tests/behat/behat_hooks.php', str_replace('throw new behat_stop_exception(\$driverexceptionmsg);', 'throw \$e;', file_get_contents(__DIR__.'/moodle/lib/tests/behat/behat_hooks.php')));"
 #  - php -S localhost:8000
 #  - php -S localhost:9090
 #  - php -S localhost:8080
