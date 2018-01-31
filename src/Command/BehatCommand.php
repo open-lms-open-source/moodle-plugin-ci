@@ -120,7 +120,7 @@ class BehatCommand extends AbstractMoodleCommand
         $selenium->disableOutput();
         $selenium->start();
 
-        $sprintf = sprintf('php -S localhost:8080 > %s/phpserver', $this->moodle->directory);
+        $sprintf = sprintf('php -S 127.0.0.1:8080 > %s/phpserver', $this->moodle->directory);
 
         echo $sprintf.PHP_EOL;
 
