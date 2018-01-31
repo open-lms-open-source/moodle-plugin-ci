@@ -104,7 +104,7 @@ class BehatCommand extends AbstractMoodleCommand
         if (!is_file($seleniumJarFile)) {
             throw new \InvalidArgumentException(sprintf('Invalid Selenium Jar file path: %s', $seleniumJarFile));
         }
-        $cmd = sprintf('xvfb-run -a --server-args="-screen 0 1024x768x24" java -Djava.net.preferIPv4Stack=true -jar %s > %s/seleniumserver 2>&1', $seleniumJarFile, $this->moodle->directory);
+        $cmd = sprintf('xvfb-run -a --server-args="-screen 0 1024x768x24" java -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false -jar %s > %s/seleniumserver 2>&1', $seleniumJarFile, $this->moodle->directory);
         if ($input->getOption('profile') === 'chrome') {
             $driver = '/usr/lib/chromium-browser/chromedriver';
             if (!file_exists($driver)) {
