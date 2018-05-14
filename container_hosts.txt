@@ -1,0 +1,7 @@
+::1	 ip6-localhost ip6-loopback
+fe00::0	ip6-localnet
+ff00::0	ip6-mcastprefix
+ff02::1	ip6-allnodes
+ff02::2	ip6-allrouters
+172.17.0.6	travis-job-moodlerooms-moodle-plugin-335718089.travisci.net travis-job-moodlerooms-moodle-plugin-335718089
+127.0.0.1 localhost localhost

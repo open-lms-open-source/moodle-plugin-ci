@@ -1,6 +1,6 @@
 language: php
 
-sudo: false
+sudo: true
 
 addons:
   firefox: "47.0.1"
@@ -33,6 +33,7 @@ install:
 #  - netstat -tulpn
   - cat /etc/hosts
 #  - sudo php -r "file_put_contents('/etc/hosts', str_replace(\"127.0.0.1 localhost 127.0.0.1\tlocalhost\", '127.0.0.1 localhost', file_get_contents('/etc/hosts')));"
+  - sudo cp `pwd`/container_hosts.txt /etc/hosts
   - cat /etc/hosts
   - unset _JAVA_OPTIONS
   - firefox --version
