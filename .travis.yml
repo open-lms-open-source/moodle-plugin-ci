@@ -32,9 +32,10 @@ install:
 #  - lsof -P
 #  - netstat -tulpn
   - cat /etc/hosts
-  - sudo cp /etc/hosts `pwd`/hosts
-  - php -r "file_put_contents('hosts', str_replace('127.0.0.1 ', '127.0.0.1 localhost localhost ', file_get_contents('hosts')));"
-  - sudo cp `pwd`/hosts /etc/hosts
+  - sudo sed -i 's/127.0.0.1 /127.0.0.1 localhost localhost /g' /etc/hosts
+#  - sudo cp /etc/hosts `pwd`/hosts
+#  - php -r "file_put_contents('hosts', str_replace('127.0.0.1 ', '127.0.0.1 localhost localhost ', file_get_contents('hosts')));"
+#  - sudo cp `pwd`/hosts /etc/hosts
 #  - sudo cp `pwd`/container_hosts.txt /etc/hosts
   - cat /etc/hosts
   - unset _JAVA_OPTIONS
