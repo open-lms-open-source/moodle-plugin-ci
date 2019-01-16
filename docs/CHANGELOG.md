@@ -16,6 +16,7 @@ The format of this change log follows the advice given at [Keep a CHANGELOG](htt
 - Add `moodle-plugin-ci phpdoc` check which executes
   [moodlehq/moodle-local_moodlecheck](https://github.com/moodlehq/moodle-local_moodlecheck.git)
   on the plugin.
+- Updated project dependencies: Moodle Code Checker v2.9.3 (added PHP 7.3 support)
 
 ## [2.4.0] - 2018-09-11
 ### Changed
