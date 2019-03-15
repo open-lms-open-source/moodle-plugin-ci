@@ -62,7 +62,10 @@ class CodeCheckerCommand extends AbstractPluginCommand
         }
 
         $filetypes = $input->getOption('files');
-        $this->finder = Finder::create()->name(($filetypes === 'all') ? '/\\.(js|php)$/' : ('*.' . $filetypes));
+        $this->finder = Finder::create()
+            ->name(($filetypes === 'all') ? '/\\.(js|php)$/' : ('*.' . $filetypes))
+            ->notPath('amd/build')
+            ->notPath('yui/build');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
