@@ -101,9 +101,14 @@ script:
 # This step runs the Moodle Code Checker to make sure that your plugin
 # conforms to the Moodle coding standards.  It is highly recommended
 # that you keep this step.
+# By default runs on PHP files. To run on both PHP and JS files use --files all
+# To fail on warnings use --max-warnings 0
   - moodle-plugin-ci codechecker
 # This step runs Moodle PHPDoc checker on your plugin.
   - moodle-plugin-ci phpdoc
+# This step lints your JS files to check for syntax errors.
+# To fail on warnings use --max-warnings 0
+  - moodle-plugin-ci eslint
 # This step runs some light validation on the plugin file structure
 # and code.  Validation can be plugin specific.
   - moodle-plugin-ci validate

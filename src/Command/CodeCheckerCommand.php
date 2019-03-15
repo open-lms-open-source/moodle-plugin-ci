@@ -44,7 +44,10 @@ class CodeCheckerCommand extends AbstractPluginCommand
 
         $this->setName('codechecker')
             ->setDescription('Run Moodle Code Checker on a plugin')
-            ->addOption('standard', 's', InputOption::VALUE_REQUIRED, 'The name or path of the coding standard to use', 'moodle');
+            ->addOption('standard', 's', InputOption::VALUE_REQUIRED, 'The name or path of the coding standard to use', 'moodle')
+            ->addOption('files', 'f', InputOption::VALUE_REQUIRED, 'File types to check (php/js/all), default php', 'php')
+            ->addOption('max-warnings', null, InputOption::VALUE_REQUIRED,
+                'Number of warnings to trigger nonzero exit code - default: -1', -1);
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)
@@ -58,7 +61,8 @@ class CodeCheckerCommand extends AbstractPluginCommand
             $this->standard = $resolver->resolve($this->standard);
         }
 
-        $this->finder = Finder::create()->name('*.php');
+        $filetypes = $input->getOption('files');
+        $this->finder = Finder::create()->name(($filetypes === 'all') ? '/\\.(js|php)$/' : ('*.' . $filetypes));
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -86,6 +90,8 @@ class CodeCheckerCommand extends AbstractPluginCommand
         $sniffer->process($files, $this->standard);
         $results = $sniffer->reporting->printReport('full', false, $sniffer->cli->getCommandLineValues(), null, 120);
 
-        return $results['errors'] > 0 ? 1 : 0;
+        $maxwarnings = (int)$input->getOption('max-warnings');
+
+        return ($results['errors'] > 0 || ($maxwarnings >= 0 && $results['warnings'] > $maxwarnings)) ? 1 : 0;
     }
 }
