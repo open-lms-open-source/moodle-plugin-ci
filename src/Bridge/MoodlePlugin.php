@@ -255,6 +255,9 @@ class MoodlePlugin
             }
         }
 
+        // Ignore node_modules.
+        $finder->notPath('node_modules');
+
         $files = [];
         foreach ($finder as $file) {
             /* @var \SplFileInfo $file */
