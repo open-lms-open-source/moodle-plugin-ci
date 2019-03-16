@@ -61,9 +61,9 @@ class CodeCheckerCommand extends AbstractPluginCommand
             $this->standard = $resolver->resolve($this->standard);
         }
 
-        $filetypes = $input->getOption('files');
+        $filetypes    = $input->getOption('files');
         $this->finder = Finder::create()
-            ->name(($filetypes === 'all') ? '/\\.(js|php)$/' : ('*.' . $filetypes))
+            ->name(($filetypes === 'all') ? '/\\.(js|php)$/' : ('*.'.$filetypes))
             ->notPath('amd/build')
             ->notPath('yui/build');
     }
@@ -93,7 +93,7 @@ class CodeCheckerCommand extends AbstractPluginCommand
         $sniffer->process($files, $this->standard);
         $results = $sniffer->reporting->printReport('full', false, $sniffer->cli->getCommandLineValues(), null, 120);
 
-        $maxwarnings = (int)$input->getOption('max-warnings');
+        $maxwarnings = (int) $input->getOption('max-warnings');
 
         return ($results['errors'] > 0 || ($maxwarnings >= 0 && $results['warnings'] > $maxwarnings)) ? 1 : 0;
     }

@@ -13,8 +13,8 @@
 namespace MoodlePluginCI\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\ProcessBuilder;
 
 class ESLintCommand extends AbstractMoodleCommand
@@ -44,6 +44,7 @@ class ESLintCommand extends AbstractMoodleCommand
         $eslint = $this->moodle->directory.'/node_modules/.bin/eslint';
         if (!file_exists($eslint) || !is_executable($eslint)) {
             $output->writeln('<error>Eslint executable not found.</error>');
+
             return 1;
         }
 
@@ -55,7 +56,7 @@ class ESLintCommand extends AbstractMoodleCommand
             ->setTimeout(null);
 
         if (($maxwarnings = $input->getOption('max-warnings')) >= 0) {
-            $builder->add('--max-warnings=' . $maxwarnings);
+            $builder->add('--max-warnings='.$maxwarnings);
         }
         if ($output->isDecorated()) {
             $builder->add('--color');
