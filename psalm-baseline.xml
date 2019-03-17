@@ -36,6 +36,9 @@
     <PossiblyInvalidPropertyAssignmentValue occurrences="1">
       <code>$input-&gt;getOption('standard')</code>
     </PossiblyInvalidPropertyAssignmentValue>
+    <PossiblyNullOperand occurrences="1">
+      <code>$filetypes</code>
+    </PossiblyNullOperand>
   </file>
   <file src="src/Command/CoverallsUploadCommand.php">
     <PossiblyInvalidArgument occurrences="1">
