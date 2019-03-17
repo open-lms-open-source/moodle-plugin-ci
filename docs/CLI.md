@@ -10,6 +10,7 @@ title: Moodle Plugin CI Commands
 * [`behat`](#behat)
 * [`codechecker`](#codechecker)
 * [`coveralls-upload`](#coveralls-upload)
+* [`eslint`](#eslint)
 * [`grunt`](#grunt)
 * [`help`](#help)
 * [`install`](#install)
@@ -389,7 +390,7 @@ Run Moodle Code Checker on a plugin
 
 ### Usage
 
-* `codechecker [-s|--standard STANDARD] [--] <plugin>`
+* `codechecker [-s|--standard STANDARD] [-f|--files FILES] [--max-warnings MAX-WARNINGS] [--] <plugin>`
 
 Run Moodle Code Checker on a plugin
 
@@ -413,6 +414,24 @@ The name or path of the coding standard to use
 * Is value required: yes
 * Is multiple: no
 * Default: `'moodle'`
+
+#### `--files|-f`
+
+File types to check (php/js/all), default php
+
+* Accept value: yes
+* Is value required: yes
+* Is multiple: no
+* Default: `'php'`
+
+#### `--max-warnings`
+
+Number of warnings to trigger nonzero exit code - default: -1
+
+* Accept value: yes
+* Is value required: yes
+* Is multiple: no
+* Default: `-1`
 
 #### `--help|-h`
 
@@ -508,6 +527,110 @@ Location of the Clover XML file to upload
 * Is value required: yes
 * Is multiple: no
 * Default: `'./coverage.xml'`
+
+#### `--help|-h`
+
+Display this help message
+
+* Accept value: no
+* Is value required: no
+* Is multiple: no
+* Default: `false`
+
+#### `--quiet|-q`
+
+Do not output any message
+
+* Accept value: no
+* Is value required: no
+* Is multiple: no
+* Default: `false`
+
+#### `--verbose|-v|-vv|-vvv`
+
+Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
+
+* Accept value: no
+* Is value required: no
+* Is multiple: no
+* Default: `false`
+
+#### `--version|-V`
+
+Display this application version
+
+* Accept value: no
+* Is value required: no
+* Is multiple: no
+* Default: `false`
+
+#### `--ansi`
+
+Force ANSI output
+
+* Accept value: no
+* Is value required: no
+* Is multiple: no
+* Default: `false`
+
+#### `--no-ansi`
+
+Disable ANSI output
+
+* Accept value: no
+* Is value required: no
+* Is multiple: no
+* Default: `false`
+
+#### `--no-interaction|-n`
+
+Do not ask any interactive question
+
+* Accept value: no
+* Is value required: no
+* Is multiple: no
+* Default: `false`
+
+`eslint`
+--------
+
+Run eslint
+
+### Usage
+
+* `eslint [-m|--moodle MOODLE] [--max-warnings MAX-WARNINGS] [--] <plugin>`
+
+Run eslint
+
+### Arguments
+
+#### `plugin`
+
+Path to the plugin
+
+* Is required: yes
+* Is array: no
+* Default: `NULL`
+
+### Options
+
+#### `--moodle|-m`
+
+Path to Moodle
+
+* Accept value: yes
+* Is value required: yes
+* Is multiple: no
+* Default: `'.'`
+
+#### `--max-warnings`
+
+Number of warnings to trigger nonzero exit code - default: -1
+
+* Accept value: yes
+* Is value required: yes
+* Is multiple: no
+* Default: `-1`
 
 #### `--help|-h`
 
@@ -1242,7 +1365,7 @@ Run Code Beautifier and Fixer on a plugin
 
 ### Usage
 
-* `phpcbf [-s|--standard STANDARD] [--] <plugin>`
+* `phpcbf [-s|--standard STANDARD] [-f|--files FILES] [--max-warnings MAX-WARNINGS] [--] <plugin>`
 
 Run Code Beautifier and Fixer on a plugin
 
@@ -1266,6 +1389,24 @@ The name or path of the coding standard to use
 * Is value required: yes
 * Is multiple: no
 * Default: `'moodle'`
+
+#### `--files|-f`
+
+File types to check (php/js/all), default php
+
+* Accept value: yes
+* Is value required: yes
+* Is multiple: no
+* Default: `'php'`
+
+#### `--max-warnings`
+
+Number of warnings to trigger nonzero exit code - default: -1
+
+* Accept value: yes
+* Is value required: yes
+* Is multiple: no
+* Default: `-1`
 
 #### `--help|-h`
 

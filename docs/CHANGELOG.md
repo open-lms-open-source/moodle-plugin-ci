@@ -11,6 +11,11 @@ The format of this change log follows the advice given at [Keep a CHANGELOG](htt
 ## [Unreleased]
 ### Added
 - New help document: [CLI commands and options](CLI.md)
+- Add `moodle-plugin-ci eslint` check which lints JS files on the plugin using
+  ESLint. To fail on warnings use `--max-warnings 0`.
+- `moodle-plugin-ci codechecker` now supports `--files` option to specify type
+  of files Codechecker should be run on. Possible values `php` (default), `js`
+  and `all`. To fail on warnings use `--max-warnings 0`.
 
 ## [2.5.0] - 2019-02-20
 ### Changed
