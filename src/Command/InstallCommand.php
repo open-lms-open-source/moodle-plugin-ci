@@ -91,7 +91,8 @@ class InstallCommand extends Command
             ->addOption('not-paths', null, InputOption::VALUE_REQUIRED, 'CSV of file paths to exclude', $paths)
             ->addOption('not-names', null, InputOption::VALUE_REQUIRED, 'CSV of file names to exclude', $names)
             ->addOption('extra-plugins', null, InputOption::VALUE_REQUIRED, 'Directory of extra plugins to install', $extra)
-            ->addOption('no-init', null, InputOption::VALUE_NONE, 'Prevent PHPUnit and Behat initialization');
+            ->addOption('no-init', null, InputOption::VALUE_NONE, 'Prevent PHPUnit and Behat initialization')
+            ->addOption('no-clone', null, InputOption::VALUE_NONE, 'Prevent Cloning Moodle');
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)
@@ -151,17 +152,21 @@ class InstallCommand extends Command
             $pluginsDir = realpath($validate->directory($pluginsDir));
         }
 
-        $factory             = new InstallerFactory();
-        $factory->moodle     = new Moodle($input->getOption('moodle'));
-        $factory->plugin     = new MoodlePlugin($pluginDir);
-        $factory->execute    = $this->execute;
-        $factory->repo       = $validate->gitUrl($input->getOption('repo'));
-        $factory->branch     = $validate->gitBranch($input->getOption('branch'));
-        $factory->dataDir    = $input->getOption('data');
-        $factory->dumper     = $this->initializePluginConfigDumper($input);
-        $factory->pluginsDir = $pluginsDir;
-        $factory->noInit     = $input->getOption('no-init');
-        $factory->database   = $resolver->resolveDatabase(
+        $factory          = new InstallerFactory();
+        $factory->moodle  = new Moodle($input->getOption('moodle'));
+        $factory->plugin  = new MoodlePlugin($pluginDir);
+        $factory->execute = $this->execute;
+        if (!$input->getOption('no-clone')) {
+            $factory->repo   = $validate->gitUrl($input->getOption('repo'));
+            $factory->branch = $validate->gitBranch($input->getOption('branch'));
+        }
+
+        $factory->dataDir           = $input->getOption('data');
+        $factory->dumper            = $this->initializePluginConfigDumper($input);
+        $factory->pluginsDir        = $pluginsDir;
+        $factory->noInit            = $input->getOption('no-init');
+        $factory->plugininmoodledir = (bool) $input->getOption('no-clone');
+        $factory->database          = $resolver->resolveDatabase(
             $input->getOption('db-type'),
             $input->getOption('db-name'),
             $input->getOption('db-user'),

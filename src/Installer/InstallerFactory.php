@@ -74,6 +74,11 @@ class InstallerFactory
     public $noInit;
 
     /**
+     * @var bool
+     */
+    public $plugininmoodledir;
+
+    /**
      * Given a big bag of install options, add installers to the collection.
      *
      * @param InstallerCollection $installers Installers will be added to this
@@ -81,7 +86,7 @@ class InstallerFactory
     public function addInstallers(InstallerCollection $installers)
     {
         $installers->add(new MoodleInstaller($this->execute, $this->database, $this->moodle, new MoodleConfig(), $this->repo, $this->branch, $this->dataDir));
-        $installers->add(new PluginInstaller($this->moodle, $this->plugin, $this->pluginsDir, $this->dumper));
+        $installers->add(new PluginInstaller($this->moodle, $this->plugin, $this->pluginsDir, $this->dumper, $this->plugininmoodledir));
         $installers->add(new VendorInstaller($this->moodle, $this->plugin, $this->execute));
 
         if ($this->noInit) {

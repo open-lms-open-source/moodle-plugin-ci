@@ -795,7 +795,7 @@ Install everything required for CI testing
 
 ### Usage
 
-* `install [--moodle MOODLE] [--data DATA] [--repo REPO] [--branch BRANCH] [--plugin PLUGIN] [--db-type DB-TYPE] [--db-user DB-USER] [--db-pass DB-PASS] [--db-name DB-NAME] [--db-host DB-HOST] [--not-paths NOT-PATHS] [--not-names NOT-NAMES] [--extra-plugins EXTRA-PLUGINS] [--no-init]`
+* `install [--moodle MOODLE] [--data DATA] [--repo REPO] [--branch BRANCH] [--plugin PLUGIN] [--db-type DB-TYPE] [--db-user DB-USER] [--db-pass DB-PASS] [--db-name DB-NAME] [--db-host DB-HOST] [--not-paths NOT-PATHS] [--not-names NOT-NAMES] [--extra-plugins EXTRA-PLUGINS] [--no-init] [--no-clone]`
 
 Install everything required for CI testing
 
@@ -921,6 +921,15 @@ Directory of extra plugins to install
 #### `--no-init`
 
 Prevent PHPUnit and Behat initialization
+
+* Accept value: no
+* Is value required: no
+* Is multiple: no
+* Default: `false`
+
+#### `--no-clone`
+
+Prevent Cloning Moodle from an external repository but consider it already installed with plugins.
 
 * Accept value: no
 * Is value required: no

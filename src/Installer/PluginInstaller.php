@@ -43,19 +43,25 @@ class PluginInstaller extends AbstractInstaller
      * @var ConfigDumper
      */
     private $configDumper;
+    /**
+     * @var bool
+     */
+    private $plugininmoodledir;
 
     /**
      * @param Moodle       $moodle
      * @param MoodlePlugin $plugin
      * @param string       $extraPluginsDir
      * @param ConfigDumper $configDumper
+     * @param bool         $plugininmoodledir
      */
-    public function __construct(Moodle $moodle, MoodlePlugin $plugin, $extraPluginsDir, ConfigDumper $configDumper)
+    public function __construct(Moodle $moodle, MoodlePlugin $plugin, $extraPluginsDir, ConfigDumper $configDumper, $plugininmoodledir = false)
     {
-        $this->moodle          = $moodle;
-        $this->plugin          = $plugin;
-        $this->extraPluginsDir = $extraPluginsDir;
-        $this->configDumper    = $configDumper;
+        $this->moodle            = $moodle;
+        $this->plugin            = $plugin;
+        $this->extraPluginsDir   = $extraPluginsDir;
+        $this->configDumper      = $configDumper;
+        $this->plugininmoodledir = $plugininmoodledir;
     }
 
     public function install()
@@ -63,7 +69,14 @@ class PluginInstaller extends AbstractInstaller
         $this->getOutput()->step('Install plugins');
 
         $plugins = $this->scanForPlugins();
-        $plugins->add($this->plugin);
+        if (!$this->plugininmoodledir) {
+            $plugins->add($this->plugin);
+        } else {
+            $this->createConfigFile($this->moodle->directory.'/.moodle-plugin-ci.yml');
+            $this->addEnv('PLUGIN_DIR', $this->moodle->directory);
+
+            return;
+        }
         $sorted = $plugins->sortByDependencies();
 
         foreach ($sorted->all() as $plugin) {
@@ -111,6 +124,15 @@ class PluginInstaller extends AbstractInstaller
         $this->getOutput()->info(sprintf('Installing %s', $plugin->getComponent()));
 
         $directory = $this->moodle->getComponentInstallDirectory($plugin->getComponent());
+
+        // If the plugins are in the same directory than Moodle, we don't have to copy them.
+        if ($this->plugininmoodledir) {
+            if (!is_dir($directory)) {
+                throw new \RuntimeException(sprintf('Plugin %s is not installed in standard Moodle', $plugin->getComponent()));
+            }
+
+            return $directory;
+        }
 
         if (is_dir($directory)) {
             throw new \RuntimeException('Plugin is already installed in standard Moodle');

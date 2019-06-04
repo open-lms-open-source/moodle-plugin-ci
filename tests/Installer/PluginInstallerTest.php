@@ -18,6 +18,7 @@ use MoodlePluginCI\Installer\ConfigDumper;
 use MoodlePluginCI\Installer\PluginInstaller;
 use MoodlePluginCI\Tests\Fake\Bridge\DummyMoodle;
 use MoodlePluginCI\Tests\FilesystemTestCase;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
@@ -59,6 +60,36 @@ class PluginInstallerTest extends FilesystemTestCase
         }
     }
 
+    public function testInstallPluginIntoMoodleWithNoClone()
+    {
+        $fixture = realpath(__DIR__.'/../Fixture/moodle-local_travis');
+        $plugin  = new MoodlePlugin($fixture);
+
+        // Copy the plugin in the Moodle directory as expected.
+        $moodle     = new DummyMoodle($this->tempDir);
+        $directory  = $moodle->getComponentInstallDirectory($plugin->getComponent());
+        $filesystem = new Filesystem();
+        $filesystem->mirror($plugin->directory, $directory);
+        try {
+            $installer  = new PluginInstaller($moodle, $plugin, '', new ConfigDumper(), true);
+            $installDir = $installer->installPluginIntoMoodle($plugin);
+            $this->assertTrue(is_dir($installDir));
+
+            $finder = new Finder();
+            $finder->files()->in($fixture);
+
+            /* @var \SplFileInfo $file */
+            foreach ($finder as $file) {
+                $path = str_replace($fixture, $this->tempDir.'/local/travis', $file->getPathname());
+
+                $this->assertFileExists($path);
+                $this->assertFileEquals($file->getPathname(), $path);
+            }
+        } finally {
+            $filesystem->remove($directory);
+        }
+    }
+
     public function testInstallPluginIntoMoodleAlreadyExists()
     {
         $this->expectException(\RuntimeException::class);
@@ -68,6 +99,17 @@ class PluginInstallerTest extends FilesystemTestCase
         $fixture   = realpath(__DIR__.'/../Fixture/moodle-local_travis');
         $plugin    = new MoodlePlugin($fixture);
         $installer = new PluginInstaller(new DummyMoodle($this->tempDir), $plugin, '', new ConfigDumper());
+        $installer->installPluginIntoMoodle($plugin);
+    }
+
+    public function testInstallPluginIntoMoodleWithNoCloneDontExists()
+    {
+        $this->expectException(\RuntimeException::class);
+
+        $this->fs->remove($this->tempDir.'/local/travis');
+        $fixture   = realpath(__DIR__.'/../Fixture/moodle-local_travis');
+        $plugin    = new MoodlePlugin($fixture);
+        $installer = new PluginInstaller(new DummyMoodle($this->tempDir), $plugin, '', new ConfigDumper(), true);
         $installer->installPluginIntoMoodle($plugin);
     }
 

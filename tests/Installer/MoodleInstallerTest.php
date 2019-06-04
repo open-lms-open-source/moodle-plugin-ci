@@ -14,10 +14,12 @@ namespace MoodlePluginCI\Tests\Installer;
 
 use MoodlePluginCI\Bridge\MoodleConfig;
 use MoodlePluginCI\Installer\Database\MySQLDatabase;
+use MoodlePluginCI\Installer\InstallOutput;
 use MoodlePluginCI\Installer\MoodleInstaller;
 use MoodlePluginCI\Tests\Fake\Bridge\DummyMoodle;
 use MoodlePluginCI\Tests\Fake\Process\DummyExecute;
 use MoodlePluginCI\Tests\FilesystemTestCase;
+use Symfony\Component\Debug\BufferingLogger;
 
 class MoodleInstallerTest extends FilesystemTestCase
 {
@@ -35,6 +37,36 @@ class MoodleInstallerTest extends FilesystemTestCase
             $dataDir
         );
         $installer->install();
+
+        $this->assertSame($installer->stepCount(), $installer->getOutput()->getStepCount());
+
+        $this->assertTrue(is_dir($dataDir));
+        $this->assertTrue(is_dir($dataDir.'/phpu_moodledata'));
+        $this->assertTrue(is_dir($dataDir.'/behat_moodledata'));
+        $this->assertTrue(is_file($this->tempDir.'/config.php'));
+        $this->assertSame($this->tempDir, $moodle->directory, 'Moodle directory should be absolute path after install');
+        $this->assertSame(['MOODLE_DIR' => $this->tempDir], $installer->getEnv());
+    }
+
+    public function testInstallNoClone()
+    {
+        $dataDir   = $this->tempDir.'/moodledata';
+        $moodle    = new DummyMoodle($this->tempDir);
+        $installer = new MoodleInstaller(
+            new DummyExecute(),
+            new MySQLDatabase(),
+            $moodle,
+            new MoodleConfig(),
+            null,
+            null,
+            $dataDir
+        );
+
+        $logger = new BufferingLogger();
+        $installer->setOutput(new InstallOutput($logger));
+        $installer->install();
+        $logs = $logger->cleanLogs();
+        $this->assertSame(['info', 'Using local Moodle setup', []], $logs[0], '"Using local Moodle setup" should be in the output');
 
         $this->assertSame($installer->stepCount(), $installer->getOutput()->getStepCount());
 
