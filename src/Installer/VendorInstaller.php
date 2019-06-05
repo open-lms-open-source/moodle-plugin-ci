@@ -52,7 +52,8 @@ class VendorInstaller extends AbstractInstaller
         if ($this->plugin->hasUnitTests() || $this->plugin->hasBehatFeatures()) {
             $processes[] = new Process('composer install --no-interaction --prefer-dist', $this->moodle->directory, null, null, null);
         }
-        $processes[] = new Process('npm install -g --no-progress grunt', null, null, null, null);
+        $sudo        = getenv('NPM_SUDO') ? 'sudo ' : '';
+        $processes[] = new Process($sudo.'npm install -g --no-progress grunt', null, null, null, null);
 
         $this->execute->mustRunAll($processes);
 

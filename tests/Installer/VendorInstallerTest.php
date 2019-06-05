@@ -30,4 +30,23 @@ class VendorInstallerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame($installer->stepCount(), $installer->getOutput()->getStepCount());
     }
+
+    public function testInstallSudo()
+    {
+        $env = getenv('NPM_SUDO');
+        try {
+            putenv('NPM_SUDO=1');
+            $dummy     = new DummyExecute();
+            $installer = new VendorInstaller(
+                new DummyMoodle(''),
+                new MoodlePlugin(__DIR__.'/../Fixture/moodle-local_travis'),
+                $dummy
+            );
+            $installer->install();
+            $commands = $dummy->getHistory();
+            $this->assertSame('sudo npm install -g --no-progress grunt', $commands[1]);
+        } finally {
+            putenv('NPM_SUDO='.$env);
+        }
+    }
 }
