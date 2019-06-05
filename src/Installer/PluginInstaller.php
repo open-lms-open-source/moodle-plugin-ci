@@ -109,6 +109,18 @@ class PluginInstaller extends AbstractInstaller
             $plugins->add(new MoodlePlugin($file->getRealPath()));
         }
 
+        if (file_exists($this->extraPluginsDir.'/plugins.txt')) {
+            $pluginstxt = explode("\n", file_get_contents($this->extraPluginsDir.'/plugins.txt'));
+            foreach ($pluginstxt as $pluginname) {
+                $pluginname = trim($pluginname);
+                if ($pluginname === '') {
+                    continue;
+                }
+                $file = new \SplFileInfo($this->moodle->directory.'/'.$pluginname);
+                $plugins->add(new MoodlePlugin($file->getRealPath()));
+            }
+        }
+
         return $plugins;
     }
 
