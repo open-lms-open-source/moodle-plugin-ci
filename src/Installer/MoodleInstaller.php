@@ -59,6 +59,10 @@ class MoodleInstaller extends AbstractInstaller
      * @var string
      */
     private $dataDir;
+    /**
+     * @var bool
+     */
+    private $createDb;
 
     /**
      * @param Execute          $execute
@@ -68,8 +72,9 @@ class MoodleInstaller extends AbstractInstaller
      * @param string           $repo
      * @param string           $branch
      * @param string           $dataDir
+     * @param bool             $createDb
      */
-    public function __construct(Execute $execute, AbstractDatabase $database, Moodle $moodle, MoodleConfig $config, $repo, $branch, $dataDir)
+    public function __construct(Execute $execute, AbstractDatabase $database, Moodle $moodle, MoodleConfig $config, $repo, $branch, $dataDir, $createDb = true)
     {
         $this->execute  = $execute;
         $this->database = $database;
@@ -78,6 +83,7 @@ class MoodleInstaller extends AbstractInstaller
         $this->repo     = $repo;
         $this->branch   = $branch;
         $this->dataDir  = $dataDir;
+        $this->createDb = $createDb;
     }
 
     public function install()
@@ -106,8 +112,10 @@ class MoodleInstaller extends AbstractInstaller
         $filesystem->mkdir($dirs);
         $filesystem->chmod($dirs, 0777);
 
-        $this->getOutput()->debug('Create Moodle database');
-        $this->execute->mustRun($this->database->getCreateDatabaseCommand());
+        if ($this->createDb) {
+            $this->getOutput()->debug('Create Moodle database');
+            $this->execute->mustRun($this->database->getCreateDatabaseCommand());
+        }
 
         $this->getOutput()->debug('Creating Moodle\'s config file');
         $contents = $this->config->createContents($this->database, $this->expandPath($this->dataDir));

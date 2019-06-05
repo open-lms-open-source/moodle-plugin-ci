@@ -72,6 +72,10 @@ class InstallerFactory
      * @var bool
      */
     public $noInit;
+    /**
+     * @var bool
+     */
+    public $createDb;
 
     /**
      * @var bool
@@ -85,7 +89,7 @@ class InstallerFactory
      */
     public function addInstallers(InstallerCollection $installers)
     {
-        $installers->add(new MoodleInstaller($this->execute, $this->database, $this->moodle, new MoodleConfig(), $this->repo, $this->branch, $this->dataDir));
+        $installers->add(new MoodleInstaller($this->execute, $this->database, $this->moodle, new MoodleConfig(), $this->repo, $this->branch, $this->dataDir, $this->createDb));
         $installers->add(new PluginInstaller($this->moodle, $this->plugin, $this->pluginsDir, $this->dumper, $this->plugininmoodledir));
         $installers->add(new VendorInstaller($this->moodle, $this->plugin, $this->execute));
 

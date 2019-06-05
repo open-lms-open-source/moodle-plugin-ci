@@ -89,6 +89,7 @@ class InstallCommand extends Command
             ->addOption('db-pass', null, InputOption::VALUE_REQUIRED, 'Database pass', '')
             ->addOption('db-name', null, InputOption::VALUE_REQUIRED, 'Database name', 'moodle')
             ->addOption('db-host', null, InputOption::VALUE_REQUIRED, 'Database host', 'localhost')
+            ->addOption('db-create-skip', null, InputOption::VALUE_NONE, 'Skip database creation')
             ->addOption('not-paths', null, InputOption::VALUE_REQUIRED, 'CSV of file paths to exclude', $paths)
             ->addOption('not-names', null, InputOption::VALUE_REQUIRED, 'CSV of file names to exclude', $names)
             ->addOption('extra-plugins', null, InputOption::VALUE_REQUIRED, 'Directory of extra plugins to install', $extra)
@@ -153,10 +154,11 @@ class InstallCommand extends Command
             $pluginsDir = realpath($validate->directory($pluginsDir));
         }
 
-        $factory          = new InstallerFactory();
-        $factory->moodle  = new Moodle($input->getOption('moodle'));
-        $factory->plugin  = new MoodlePlugin($pluginDir);
-        $factory->execute = $this->execute;
+        $factory           = new InstallerFactory();
+        $factory->moodle   = new Moodle($input->getOption('moodle'));
+        $factory->plugin   = new MoodlePlugin($pluginDir);
+        $factory->execute  = $this->execute;
+        $factory->createDb = !$input->getOption('db-create-skip');
         if (!$input->getOption('no-clone')) {
             $factory->repo   = $validate->gitUrl($input->getOption('repo'));
             $factory->branch = $validate->gitBranch($input->getOption('branch'));

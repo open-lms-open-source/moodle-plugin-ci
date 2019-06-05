@@ -76,6 +76,25 @@ class InstallCommandTest extends MoodleTestCase
         }
     }
 
+    public function testDbCreateSkipFlag()
+    {
+        $command          = new InstallCommand($this->tempDir.'/.env');
+        $command->install = new DummyInstall(new InstallOutput());
+
+        $application = new Application();
+        $application->add($command);
+
+        $input   = new ArrayInput(
+            [
+                '--db-create-skip' => true,
+                '--db-type'        => 'mysqli',
+                '--no-clone'       => true,
+            ], $command->getDefinition()
+        );
+        $factory = $command->initializeInstallerFactory($input);
+        $this->assertFalse($factory->createDb);
+    }
+
     /**
      * @param string $value
      * @param array  $expected
