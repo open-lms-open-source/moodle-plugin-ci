@@ -50,6 +50,32 @@ class InstallCommandTest extends MoodleTestCase
         $this->assertSame(0, $commandTester->getStatusCode());
     }
 
+    public function testMoodleDirEnv()
+    {
+        $previous = getenv('MOODLE_DIR');
+        try {
+            $fakeMoodleDir = $this->tempDir.'/moodle_fake';
+            putenv('MOODLE_DIR='.$fakeMoodleDir);
+
+            $command          = new InstallCommand($this->tempDir.'/.env');
+            $command->install = new DummyInstall(new InstallOutput());
+
+            $application = new Application();
+            $application->add($command);
+
+            $input   = new ArrayInput(
+                [
+                    '--no-clone' => true,
+                    '--db-type'  => 'mysqli',
+                ], $command->getDefinition()
+            );
+            $factory = $command->initializeInstallerFactory($input);
+            $this->assertSame($fakeMoodleDir, $factory->moodle->directory);
+        } finally {
+            putenv('MOODLE_DIR='.$previous);
+        }
+    }
+
     /**
      * @param string $value
      * @param array  $expected

@@ -929,7 +929,7 @@ Prevent PHPUnit and Behat initialization
 
 #### `--no-clone`
 
-Prevent Cloning Moodle from an external repository but consider it already installed with plugins.
+Prevent Cloning Moodle
 
 * Accept value: no
 * Is value required: no
