@@ -28,12 +28,14 @@ class DummyMoodle extends Moodle
 
     public function normalizeComponent($component)
     {
-        return ['local', 'travis'];
+        // It will not work with all the plugin types.
+        return explode('_', $component);
     }
 
     public function getComponentInstallDirectory($component)
     {
-        return $this->directory.'/local/travis';
+        // This doesn't simulate Moodle's \core_component::fetch_plugintypes nicely.
+        return $this->directory.'/'.str_replace('_', '/', $component);
     }
 
     public function getBranch()

@@ -68,14 +68,14 @@ class InstallCommand extends Command
     protected function configure()
     {
         // Travis CI configures some things by environment variables, default to those if available.
-        $type    = getenv('DB') !== false ? getenv('DB') : null;
-        $repo    = getenv('MOODLE_REPO') !== false ? getenv('MOODLE_REPO') : 'git://github.com/moodle/moodle.git';
-        $branch  = getenv('MOODLE_BRANCH') !== false ? getenv('MOODLE_BRANCH') : null;
-        $plugin  = getenv('TRAVIS_BUILD_DIR') !== false ? getenv('TRAVIS_BUILD_DIR') : null;
-        $paths   = getenv('IGNORE_PATHS') !== false ? getenv('IGNORE_PATHS') : null;
-        $names   = getenv('IGNORE_NAMES') !== false ? getenv('IGNORE_NAMES') : null;
-        $extra   = getenv('EXTRA_PLUGINS_DIR') !== false ? getenv('EXTRA_PLUGINS_DIR') : null;
-        $moodle  = getenv('MOODLE_DIR') !== false ? getenv('MOODLE_DIR') : 'moodle';
+        $type   = getenv('DB') !== false ? getenv('DB') : null;
+        $repo   = getenv('MOODLE_REPO') !== false ? getenv('MOODLE_REPO') : 'git://github.com/moodle/moodle.git';
+        $branch = getenv('MOODLE_BRANCH') !== false ? getenv('MOODLE_BRANCH') : null;
+        $plugin = getenv('TRAVIS_BUILD_DIR') !== false ? getenv('TRAVIS_BUILD_DIR') : null;
+        $paths  = getenv('IGNORE_PATHS') !== false ? getenv('IGNORE_PATHS') : null;
+        $names  = getenv('IGNORE_NAMES') !== false ? getenv('IGNORE_NAMES') : null;
+        $extra  = getenv('EXTRA_PLUGINS_DIR') !== false ? getenv('EXTRA_PLUGINS_DIR') : null;
+        $moodle = getenv('MOODLE_DIR') !== false ? getenv('MOODLE_DIR') : 'moodle';
 
         $this->setName('install')
             ->setDescription('Install everything required for CI testing')
@@ -154,22 +154,26 @@ class InstallCommand extends Command
             $pluginsDir = realpath($validate->directory($pluginsDir));
         }
 
-        $factory           = new InstallerFactory();
-        $factory->moodle   = new Moodle($input->getOption('moodle'));
-        $factory->plugin   = new MoodlePlugin($pluginDir);
-        $factory->execute  = $this->execute;
-        $factory->createDb = !$input->getOption('db-create-skip');
+        $factory                    = new InstallerFactory();
+        $factory->moodle            = new Moodle($input->getOption('moodle'));
+        $factory->execute           = $this->execute;
+        $factory->createDb          = !$input->getOption('db-create-skip');
+        $factory->plugininmoodledir = (bool) $input->getOption('no-clone');
+
         if (!$input->getOption('no-clone')) {
             $factory->repo   = $validate->gitUrl($input->getOption('repo'));
             $factory->branch = $validate->gitBranch($input->getOption('branch'));
         }
 
-        $factory->dataDir           = $input->getOption('data');
-        $factory->dumper            = $this->initializePluginConfigDumper($input);
-        $factory->pluginsDir        = $pluginsDir;
-        $factory->noInit            = $input->getOption('no-init');
-        $factory->plugininmoodledir = (bool) $input->getOption('no-clone');
-        $factory->database          = $resolver->resolveDatabase(
+        if (!$factory->plugininmoodledir) {
+            $factory->plugin = new MoodlePlugin($pluginDir);
+        }
+
+        $factory->dataDir    = $input->getOption('data');
+        $factory->dumper     = $this->initializePluginConfigDumper($input);
+        $factory->pluginsDir = $pluginsDir;
+        $factory->noInit     = $input->getOption('no-init');
+        $factory->database   = $resolver->resolveDatabase(
             $input->getOption('db-type'),
             $input->getOption('db-name'),
             $input->getOption('db-user'),
