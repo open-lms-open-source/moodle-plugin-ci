@@ -33,7 +33,7 @@ class TestSuiteInstallerTest extends MoodleTestCase
     {
         $installer = new TestSuiteInstaller(
             new DummyMoodle(''),
-            new MoodlePlugin($this->pluginDir),
+            [new MoodlePlugin($this->pluginDir)],
             new DummyExecute()
         );
         $installer->install();
@@ -45,7 +45,7 @@ class TestSuiteInstallerTest extends MoodleTestCase
     {
         $installer = new TestSuiteInstaller(
             new DummyMoodle(''),
-            new MoodlePlugin($this->pluginDir),
+            [new MoodlePlugin($this->pluginDir)],
             new DummyExecute()
         );
 
@@ -62,7 +62,7 @@ class TestSuiteInstallerTest extends MoodleTestCase
     {
         $installer = new TestSuiteInstaller(
             new DummyMoodle(''),
-            new MoodlePlugin($this->pluginDir),
+            [new MoodlePlugin($this->pluginDir)],
             new DummyExecute()
         );
 
@@ -80,7 +80,7 @@ class TestSuiteInstallerTest extends MoodleTestCase
         $xmlFile   = $this->pluginDir.'/phpunit.xml';
         $installer = new TestSuiteInstaller(
             new DummyMoodle(''),
-            new MoodlePlugin($this->pluginDir),
+            [new MoodlePlugin($this->pluginDir)],
             new DummyExecute()
         );
 

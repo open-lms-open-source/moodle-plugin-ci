@@ -32,19 +32,19 @@ class TestSuiteInstaller extends AbstractInstaller
     private $moodle;
 
     /**
-     * @var MoodlePlugin
+     * @var MoodlePlugin[]
      */
-    private $plugin;
+    private $plugins;
 
     /**
      * @var Execute
      */
     private $execute;
 
-    public function __construct(Moodle $moodle, MoodlePlugin $plugin, Execute $execute)
+    public function __construct(Moodle $moodle, array $plugins, Execute $execute)
     {
         $this->moodle  = $moodle;
-        $this->plugin  = $plugin;
+        $this->plugins = $plugins;
         $this->execute = $execute;
     }
 
@@ -96,7 +96,7 @@ class TestSuiteInstaller extends AbstractInstaller
      */
     public function getBehatInstallProcesses()
     {
-        if (!$this->plugin->hasBehatFeatures()) {
+        if (!$this->hasBehatFeatures()) {
             return [];
         }
 
@@ -123,7 +123,7 @@ class TestSuiteInstaller extends AbstractInstaller
      */
     public function getUnitTestInstallProcesses()
     {
-        if (!$this->plugin->hasUnitTests()) {
+        if (!$this->hasUnitTests()) {
             return [];
         }
 
@@ -141,11 +141,11 @@ class TestSuiteInstaller extends AbstractInstaller
     {
         $processes = [];
 
-        if ($this->plugin->hasBehatFeatures()) {
+        if ($this->hasBehatFeatures()) {
             $this->getOutput()->debug('Enabling Behat');
             $processes[] = new MoodleProcess(sprintf('%s --enable --add-core-features-to-theme', $this->getBehatUtility()));
         }
-        if ($this->plugin->hasUnitTests()) {
+        if ($this->hasUnitTests()) {
             $this->getOutput()->debug('Build PHPUnit config');
             $processes[] = new MoodleProcess(sprintf('%s/admin/tool/phpunit/cli/util.php --buildconfig', $this->moodle->directory));
             $processes[] = new MoodleProcess(sprintf('%s/admin/tool/phpunit/cli/util.php --buildcomponentconfigs', $this->moodle->directory));
@@ -159,38 +159,42 @@ class TestSuiteInstaller extends AbstractInstaller
      */
     public function injectPHPUnitFilter()
     {
-        $config = $this->plugin->directory.'/phpunit.xml';
-        if (!is_file($config)) {
-            return;
+        foreach ($this->plugins as $plugin) {
+            $config = $plugin->directory.'/phpunit.xml';
+            if (!is_file($config)) {
+                return;
+            }
+
+            $files     = $this->getCoverageFiles($plugin);
+            $filterXml = $this->getFilterXml($files);
+            $subject   = file_get_contents($config);
+            $count     = 0;
+
+            // Replace existing filter.
+            $contents = preg_replace('/<filter>(.|\n)*<\/filter>/m', trim($filterXml), $subject, 1, $count);
+
+            // Or if no existing filter, inject the filter.
+            if ($count === 0) {
+                $contents = str_replace('</phpunit>', $filterXml.'</phpunit>', $subject, $count);
+            }
+
+            if ($count !== 1) {
+                throw new \RuntimeException('Failed to inject settings into plugin phpunit.xml file');
+            }
+
+            $filesystem = new Filesystem();
+            $filesystem->dumpFile($config, $contents);
         }
-
-        $files     = $this->getCoverageFiles();
-        $filterXml = $this->getFilterXml($files);
-        $subject   = file_get_contents($config);
-        $count     = 0;
-
-        // Replace existing filter.
-        $contents = preg_replace('/<filter>(.|\n)*<\/filter>/m', trim($filterXml), $subject, 1, $count);
-
-        // Or if no existing filter, inject the filter.
-        if ($count === 0) {
-            $contents  = str_replace('</phpunit>', $filterXml.'</phpunit>', $subject, $count);
-        }
-
-        if ($count !== 1) {
-            throw new \RuntimeException('Failed to inject settings into plugin phpunit.xml file');
-        }
-
-        $filesystem = new Filesystem();
-        $filesystem->dumpFile($config, $contents);
     }
 
     /**
      * Get all files we want to add to code coverage.
      *
+     * @param MoodlePlugin $plugin
+     *
      * @return array
      */
-    private function getCoverageFiles()
+    private function getCoverageFiles(MoodlePlugin $plugin)
     {
         $finder = Finder::create()
             ->name('*.php')
@@ -200,13 +204,13 @@ class TestSuiteInstaller extends AbstractInstaller
             ->notPath('lang')
             ->notPath('vendor');
 
-        $this->plugin->context = 'phpunit'; // Bit of a hack, but ensure we respect PHPUnit ignores.
+        $plugin->context = 'phpunit'; // Bit of a hack, but ensure we respect PHPUnit ignores.
 
-        $files = $this->plugin->getRelativeFiles($finder);
+        $files = $plugin->getRelativeFiles($finder);
 
-        $this->plugin->context = ''; // Revert.
+        $plugin->context = ''; // Revert.
 
-        return $this->removeDbFiles($this->plugin->directory.'/db', $files);
+        return $this->removeDbFiles($plugin->directory.'/db', $files);
     }
 
     /**
@@ -262,5 +266,33 @@ class TestSuiteInstaller extends AbstractInstaller
     </filter>
 
 XML;
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasBehatFeatures()
+    {
+        foreach ($this->plugins as $plugin) {
+            if ($plugin->hasBehatFeatures()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasUnitTests()
+    {
+        foreach ($this->plugins as $plugin) {
+            if ($plugin->hasUnitTests()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

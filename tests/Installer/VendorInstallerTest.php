@@ -23,7 +23,7 @@ class VendorInstallerTest extends \PHPUnit_Framework_TestCase
     {
         $installer = new VendorInstaller(
             new DummyMoodle(''),
-            new MoodlePlugin(__DIR__.'/../Fixture/moodle-local_travis'),
+            [new MoodlePlugin(__DIR__.'/../Fixture/moodle-local_travis')],
             new DummyExecute()
         );
         $installer->install();
@@ -39,7 +39,7 @@ class VendorInstallerTest extends \PHPUnit_Framework_TestCase
             $dummy     = new DummyExecute();
             $installer = new VendorInstaller(
                 new DummyMoodle(''),
-                new MoodlePlugin(__DIR__.'/../Fixture/moodle-local_travis'),
+                [new MoodlePlugin(__DIR__.'/../Fixture/moodle-local_travis')],
                 $dummy
             );
             $installer->install();

@@ -69,6 +69,11 @@ class InstallerFactory
     public $pluginsDir;
 
     /**
+     * @var string
+     */
+    public $pluginDir;
+
+    /**
      * @var bool
      */
     public $noInit;
@@ -78,7 +83,7 @@ class InstallerFactory
     public $createDb;
 
     /**
-     * @var bool
+     * @var bool if true, the plugins are not copied into Moodle directory
      */
     public $plugininmoodledir;
 
@@ -90,14 +95,27 @@ class InstallerFactory
     public function addInstallers(InstallerCollection $installers)
     {
         $installers->add(new MoodleInstaller($this->execute, $this->database, $this->moodle, new MoodleConfig(), $this->repo, $this->branch, $this->dataDir, $this->createDb));
-        $installers->add(new PluginInstaller($this->moodle, $this->plugin, $this->pluginsDir, $this->dumper, $this->plugininmoodledir));
-        $installers->add(new VendorInstaller($this->moodle, $this->plugin, $this->execute));
+        $installer = $this->getPluginInstaller();
+        $plugins   = $installer->pluginsToPrepare();
+
+        $installers->add($installer);
+        $installers->add(new VendorInstaller($this->moodle, $plugins, $this->execute));
 
         if ($this->noInit) {
             return;
         }
-        if ($this->plugin->hasBehatFeatures() || $this->plugin->hasUnitTests()) {
-            $installers->add(new TestSuiteInstaller($this->moodle, $this->plugin, $this->execute));
+        $installers->add(new TestSuiteInstaller($this->moodle, $plugins, $this->execute));
+    }
+
+    /**
+     * @return AbstractPluginInstaller
+     */
+    protected function getPluginInstaller()
+    {
+        if ($this->plugininmoodledir) {
+            return new PluginInstallerNoCopy($this->moodle, $this->dumper, $this->pluginsDir);
         }
+
+        return new PluginInstaller($this->moodle, $this->pluginDir, $this->pluginsDir, $this->dumper);
     }
 }
