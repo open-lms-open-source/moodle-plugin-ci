@@ -49,4 +49,36 @@ class VendorInstallerTest extends \PHPUnit_Framework_TestCase
             putenv('NPM_SUDO='.$env);
         }
     }
+
+    public function testComposerInstall()
+    {
+        $dummy  = new DummyExecute();
+        $plugin = new MoodlePlugin(__DIR__.'/../Fixture/moodle-local_travis');
+        $this->assertTrue($plugin->hasUnitTests());
+        $this->assertTrue($plugin->hasBehatFeatures());
+        $installer = new VendorInstaller(
+            new DummyMoodle(''),
+            [$plugin],
+            $dummy
+        );
+        $installer->install();
+        $commands = $dummy->getHistory();
+        $this->assertSame('composer install --no-interaction --prefer-dist', $commands[0]);
+    }
+
+    public function testNoComposerInstall()
+    {
+        $plugin = new MoodlePlugin(__DIR__.'/../Fixture/moodle-local_emptyplugin');
+        $this->assertFalse($plugin->hasUnitTests());
+        $this->assertFalse($plugin->hasBehatFeatures());
+        $dummy     = new DummyExecute();
+        $installer = new VendorInstaller(
+            new DummyMoodle(''),
+            [$plugin],
+            $dummy
+        );
+        $installer->install();
+        $commands = $dummy->getHistory();
+        $this->assertNotTrue('composer install --no-interaction --prefer-dist' === $commands[0]);
+    }
 }

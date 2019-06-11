@@ -57,6 +57,7 @@ class VendorInstaller extends AbstractInstaller
 
         $processes = [];
         if ($this->shouldInstallComposer()) {
+            $this->getOutput()->info(sprintf('Install composer packages on the Moodle directory: %s', $this->moodle->directory));
             $processes[] = new Process('composer install --no-interaction --prefer-dist', $this->moodle->directory, null, null, null);
         }
         $sudo        = getenv('NPM_SUDO') ? 'sudo ' : '';
