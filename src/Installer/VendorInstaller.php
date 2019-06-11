@@ -56,6 +56,11 @@ class VendorInstaller extends AbstractInstaller
         $this->getOutput()->step('Install global dependencies');
 
         $processes = [];
+
+        if (empty($this->plugins)) {
+            $this->getOutput()->warning('There is no plugin to prepare');
+        }
+
         if ($this->shouldInstallComposer()) {
             $this->getOutput()->info(sprintf('Install composer packages on the Moodle directory: %s', $this->moodle->directory));
             $processes[] = new Process('composer install --no-interaction --prefer-dist', $this->moodle->directory, null, null, null);
