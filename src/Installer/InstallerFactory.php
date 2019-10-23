@@ -88,13 +88,18 @@ class InstallerFactory
     public $plugininmoodledir;
 
     /**
+     * @var bool if true, the plugins are not copied into Moodle directory
+     */
+    public $noConfigRewrite;
+
+    /**
      * Given a big bag of install options, add installers to the collection.
      *
      * @param InstallerCollection $installers Installers will be added to this
      */
     public function addInstallers(InstallerCollection $installers)
     {
-        $installers->add(new MoodleInstaller($this->execute, $this->database, $this->moodle, new MoodleConfig(), $this->repo, $this->branch, $this->dataDir, $this->createDb));
+        $installers->add(new MoodleInstaller($this->execute, $this->database, $this->moodle, new MoodleConfig(), $this->repo, $this->branch, $this->dataDir, $this->createDb, !$this->noConfigRewrite));
         $installer = $this->getPluginInstaller();
         $plugins   = $installer->pluginsToPrepare();
 

@@ -103,6 +103,27 @@ class InstallCommandTest extends MoodleTestCase
         $this->assertInstanceOf(PluginInstallerNoCopy::class, $collection->all()[1]);
     }
 
+    public function testNoConfigRewriteFlag()
+    {
+        $command          = new InstallCommand($this->tempDir.'/.env');
+        $command->install = new DummyInstall(new InstallOutput());
+
+        $application = new Application();
+        $application->add($command);
+
+        $input            = new ArrayInput(
+            [
+                '--db-create-skip'    => true,
+                '--db-type'           => 'mysqli',
+                '--no-clone'          => true,
+                '--no-config-rewrite' => true,
+            ], $command->getDefinition()
+        );
+        $command->execute = new DummyExecute();
+        $factory          = $command->initializeInstallerFactory($input);
+        $this->assertTrue($factory->noConfigRewrite);
+    }
+
     /**
      * @param string $value
      * @param array  $expected

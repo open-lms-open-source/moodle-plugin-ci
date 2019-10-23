@@ -63,6 +63,10 @@ class MoodleInstaller extends AbstractInstaller
      * @var bool
      */
     private $createDb;
+    /**
+     * @var bool
+     */
+    private $rewriteConfig;
 
     /**
      * @param Execute          $execute
@@ -73,17 +77,19 @@ class MoodleInstaller extends AbstractInstaller
      * @param string           $branch
      * @param string           $dataDir
      * @param bool             $createDb
+     * @param bool             $rewriteConfig
      */
-    public function __construct(Execute $execute, AbstractDatabase $database, Moodle $moodle, MoodleConfig $config, $repo, $branch, $dataDir, $createDb = true)
+    public function __construct(Execute $execute, AbstractDatabase $database, Moodle $moodle, MoodleConfig $config, $repo, $branch, $dataDir, $createDb = true, $rewriteConfig = true)
     {
-        $this->execute  = $execute;
-        $this->database = $database;
-        $this->moodle   = $moodle;
-        $this->config   = $config;
-        $this->repo     = $repo;
-        $this->branch   = $branch;
-        $this->dataDir  = $dataDir;
-        $this->createDb = $createDb;
+        $this->execute       = $execute;
+        $this->database      = $database;
+        $this->moodle        = $moodle;
+        $this->config        = $config;
+        $this->repo          = $repo;
+        $this->branch        = $branch;
+        $this->dataDir       = $dataDir;
+        $this->createDb      = $createDb;
+        $this->rewriteConfig = $rewriteConfig;
     }
 
     public function install()
@@ -117,9 +123,11 @@ class MoodleInstaller extends AbstractInstaller
             $this->execute->mustRun($this->database->getCreateDatabaseCommand());
         }
 
-        $this->getOutput()->debug('Creating Moodle\'s config file');
-        $contents = $this->config->createContents($this->database, $this->expandPath($this->dataDir));
-        $this->config->dump($this->moodle->directory.'/config.php', $contents);
+        if ($this->rewriteConfig) {
+            $this->getOutput()->debug('Creating Moodle\'s config file');
+            $contents = $this->config->createContents($this->database, $this->expandPath($this->dataDir));
+            $this->config->dump($this->moodle->directory.'/config.php', $contents);
+        }
 
         $this->addEnv('MOODLE_DIR', $this->moodle->directory);
 

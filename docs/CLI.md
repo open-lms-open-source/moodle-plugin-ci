@@ -795,7 +795,7 @@ Install everything required for CI testing
 
 ### Usage
 
-* `install [--moodle MOODLE] [--data DATA] [--repo REPO] [--branch BRANCH] [--plugin PLUGIN] [--db-type DB-TYPE] [--db-user DB-USER] [--db-pass DB-PASS] [--db-name DB-NAME] [--db-host DB-HOST] [--db-create-skip] [--not-paths NOT-PATHS] [--not-names NOT-NAMES] [--extra-plugins EXTRA-PLUGINS] [--no-init] [--no-clone]`
+* `install [--moodle MOODLE] [--data DATA] [--repo REPO] [--branch BRANCH] [--plugin PLUGIN] [--db-type DB-TYPE] [--db-user DB-USER] [--db-pass DB-PASS] [--db-name DB-NAME] [--db-host DB-HOST] [--db-create-skip] [--not-paths NOT-PATHS] [--not-names NOT-NAMES] [--extra-plugins EXTRA-PLUGINS] [--no-init] [--no-clone] [--no-config-rewrite]`
 
 Install everything required for CI testing
 
@@ -939,6 +939,15 @@ Prevent PHPUnit and Behat initialization
 #### `--no-clone`
 
 Prevent Cloning Moodle
+
+* Accept value: no
+* Is value required: no
+* Is multiple: no
+* Default: `false`
+
+#### `--no-config-rewrite`
+
+Prevent generating a new Moodle config.php file
 
 * Accept value: no
 * Is value required: no
