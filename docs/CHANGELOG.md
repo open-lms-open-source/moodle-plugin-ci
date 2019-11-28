@@ -15,6 +15,7 @@ The format of this change log follows the advice given at [Keep a CHANGELOG](htt
   [#91](https://github.com/blackboard-open-source/moodle-plugin-ci/issues/91).
 - Updated verion of `moodlehq/moodle-local_ci` to fix Mustache linting. See
   [#91](https://github.com/blackboard-open-source/moodle-plugin-ci/issues/91).
+- Updated version of `moodlehq/moodle-local_codechecker`.
 
 ### Added
 - New help document: [CLI commands and options](CLI.md)
