@@ -27,8 +27,8 @@ env:
 
 install:
   - phpenv config-rm xdebug.ini
-  - nvm install 8.9
-  - nvm use 8.9
+  - nvm install 8.16.1
+  - nvm use 8.16.1
   - make init
   # Start Selenium Standalone with Chrome/Firefox installed.
   - docker run -d -p 127.0.0.1:4444:4444 --net=host -v /dev/shm:/dev/shm selenium/standalone-${PROFILE}:3
