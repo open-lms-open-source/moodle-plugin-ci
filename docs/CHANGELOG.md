@@ -68,6 +68,9 @@ The format of this change log follows the advice given at [Keep a CHANGELOG](htt
 ### Added
 - `moodle-plugin-ci install` now provides an option `--no-init` to skip initialization of the Behat and PHPUnit
   test suites.  Only use this option if execution of these tests are not required.
+- `moodle-plugin-ci install` now provides an option `--init-only` to run initialization of the Behat and PHPUnit
+  test suites only. Can be used if `moodle-plugin-ci install` is called with `--no-init` before. ED: call
+  `moodle-plugin-ci install --no-init`, apply a patch, call `moodle-plugin-ci install --init-only`.
 
 ## [2.1.1] - 2017-09-29
 ### Fixed

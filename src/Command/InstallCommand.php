@@ -91,7 +91,8 @@ class InstallCommand extends Command
             ->addOption('not-paths', null, InputOption::VALUE_REQUIRED, 'CSV of file paths to exclude', $paths)
             ->addOption('not-names', null, InputOption::VALUE_REQUIRED, 'CSV of file names to exclude', $names)
             ->addOption('extra-plugins', null, InputOption::VALUE_REQUIRED, 'Directory of extra plugins to install', $extra)
-            ->addOption('no-init', null, InputOption::VALUE_NONE, 'Prevent PHPUnit and Behat initialization');
+            ->addOption('no-init', null, InputOption::VALUE_NONE, 'Prevent PHPUnit and Behat initialization')
+            ->addOption('init-only', null, InputOption::VALUE_NONE, 'Run PHPUnit and Behat initialization only');
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)
@@ -161,6 +162,7 @@ class InstallCommand extends Command
         $factory->dumper     = $this->initializePluginConfigDumper($input);
         $factory->pluginsDir = $pluginsDir;
         $factory->noInit     = $input->getOption('no-init');
+        $factory->initonly   = $input->getOption('init-only');
         $factory->database   = $resolver->resolveDatabase(
             $input->getOption('db-type'),
             $input->getOption('db-name'),
