@@ -14,6 +14,7 @@
 use MoodlePluginCI\Command\AddConfigCommand;
 use MoodlePluginCI\Command\AddPluginCommand;
 use MoodlePluginCI\Command\BehatCommand;
+use MoodlePluginCI\Command\CheckDBSchemaCommand;
 use MoodlePluginCI\Command\CodeCheckerCommand;
 use MoodlePluginCI\Command\CodeFixerCommand;
 use MoodlePluginCI\Command\CompletionCommand;
@@ -60,6 +61,7 @@ $application = new Application('Moodle Plugin CI', '@package_version@');
 $application->add(new AddConfigCommand());
 $application->add(new AddPluginCommand(ENV_FILE));
 $application->add(new BehatCommand());
+$application->add(new CheckDBSchemaCommand());
 $application->add(new CodeCheckerCommand());
 $application->add(new CodeFixerCommand());
 $application->add(new CompletionCommand());
