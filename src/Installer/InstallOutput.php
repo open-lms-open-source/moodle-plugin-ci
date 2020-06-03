@@ -13,12 +13,13 @@
 namespace MoodlePluginCI\Installer;
 
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 /**
  * Handles output for installation process.
  */
-class InstallOutput
+class InstallOutput implements LoggerInterface
 {
     /**
      * @var ProgressBar|null
@@ -106,28 +107,76 @@ class InstallOutput
     }
 
     /**
-     * Log a message, shown in lower verbosity mode.
-     *
-     * @param string $message
-     * @param array  $context
+     * {@inheritdoc}
      */
     public function info($message, array $context = [])
     {
-        if ($this->logger instanceof LoggerInterface) {
-            $this->logger->info($message, $context);
-        }
+        $this->log(LogLevel::INFO, $message, $context);
     }
 
     /**
-     * Log a message, shown in highest verbosity mode.
-     *
-     * @param string $message
-     * @param array  $context
+     * {@inheritdoc}
+     */
+    public function warning($message, array $context = [])
+    {
+        $this->log(LogLevel::WARNING, $message, $context);
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function debug($message, array $context = [])
     {
+        $this->log(LogLevel::DEBUG, $message, $context);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function emergency($message, array $context = [])
+    {
+        $this->log(LogLevel::EMERGENCY, $message, $context);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function alert($message, array $context = [])
+    {
+        $this->log(LogLevel::ALERT, $message, $context);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function critical($message, array $context = [])
+    {
+        $this->log(LogLevel::CRITICAL, $message, $context);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function error($message, array $context = [])
+    {
+        $this->log(LogLevel::ERROR, $message, $context);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function notice($message, array $context = [])
+    {
+        $this->log(LogLevel::NOTICE, $message, $context);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function log($level, $message, array $context = [])
+    {
         if ($this->logger instanceof LoggerInterface) {
-            $this->logger->debug($message, $context);
+            $this->logger->log($level, $message, $context);
         }
     }
 }

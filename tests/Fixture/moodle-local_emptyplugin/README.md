@@ -1,0 +1,1 @@
+This is an empty plugin, it is used for Unit Testing.

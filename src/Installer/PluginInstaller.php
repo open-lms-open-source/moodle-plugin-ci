@@ -20,40 +20,46 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
- * Moodle plugins installer.
+ * Moodle plugins installer. This will copy plugins to Moodle root.
+ * This will use the $plugindir as a plugin to install and configure, and scan the $extraPluginsDir to install more plugins.
  */
-class PluginInstaller extends AbstractInstaller
+class PluginInstaller extends AbstractPluginInstaller
 {
+    use TraitInstallerCreateConfig;
     /**
      * @var Moodle
      */
     private $moodle;
 
     /**
-     * @var MoodlePlugin
+     * @var string
      */
-    private $plugin;
+    private $plugindir;
 
     /**
      * @var string
      */
     private $extraPluginsDir;
-
     /**
-     * @var ConfigDumper
+     * @var MoodlePlugin
      */
-    private $configDumper;
+    private $pluginSingleton;
 
     /**
      * @param Moodle       $moodle
-     * @param MoodlePlugin $plugin
+     * @param string       $plugindir
      * @param string       $extraPluginsDir
      * @param ConfigDumper $configDumper
      */
-    public function __construct(Moodle $moodle, MoodlePlugin $plugin, $extraPluginsDir, ConfigDumper $configDumper)
+    public function __construct(Moodle $moodle, $plugindir, $extraPluginsDir, ConfigDumper $configDumper)
     {
-        $this->moodle          = $moodle;
-        $this->plugin          = $plugin;
+        $this->moodle = $moodle;
+
+        // No Backward compatibility.
+        if ($plugindir instanceof MoodlePlugin) {
+            throw new \InvalidArgumentException('plugindir should be a string and not a plugin, then use getLocalPluginSingleton to get the plugin.');
+        }
+        $this->plugindir       = $plugindir;
         $this->extraPluginsDir = $extraPluginsDir;
         $this->configDumper    = $configDumper;
     }
@@ -62,19 +68,18 @@ class PluginInstaller extends AbstractInstaller
     {
         $this->getOutput()->step('Install plugins');
 
-        $plugins = $this->scanForPlugins();
-        $plugins->add($this->plugin);
-        $sorted = $plugins->sortByDependencies();
+        $plugins = $this->pluginsToInstall();
+        $sorted  = $plugins->sortByDependencies();
 
         foreach ($sorted->all() as $plugin) {
             $directory = $this->installPluginIntoMoodle($plugin);
 
-            if ($plugin->getComponent() === $this->plugin->getComponent()) {
+            if ($plugin->getComponent() === $this->getLocalPluginSingleton()->getComponent()) {
                 $this->addEnv('PLUGIN_DIR', $directory);
                 $this->createConfigFile($directory.'/.moodle-plugin-ci.yml');
 
                 // Update plugin so other installers use the installed path.
-                $this->plugin->directory = $directory;
+                $this->getLocalPluginSingleton()->directory = $directory;
             }
         }
     }
@@ -82,9 +87,10 @@ class PluginInstaller extends AbstractInstaller
     /**
      * @return MoodlePluginCollection
      */
-    public function scanForPlugins()
+    public function pluginsToInstall()
     {
         $plugins = new MoodlePluginCollection();
+        $plugins->add($this->getLocalPluginSingleton());
 
         if (empty($this->extraPluginsDir)) {
             return $plugins;
@@ -97,6 +103,14 @@ class PluginInstaller extends AbstractInstaller
         }
 
         return $plugins;
+    }
+
+    /**
+     * @return MoodlePlugin[]
+     */
+    public function pluginsToPrepare()
+    {
+        return [$this->getLocalPluginSingleton()];
     }
 
     /**
@@ -125,29 +139,20 @@ class PluginInstaller extends AbstractInstaller
         return $directory;
     }
 
-    /**
-     * Create plugin config file.
-     *
-     * @param string $toFile
-     */
-    public function createConfigFile($toFile)
-    {
-        if (file_exists($toFile)) {
-            $this->getOutput()->debug('Config file already exists in plugin, skipping creation of config file.');
-
-            return;
-        }
-        if (!$this->configDumper->hasConfig()) {
-            $this->getOutput()->debug('No config to write out, skipping creation of config file.');
-
-            return;
-        }
-        $this->configDumper->dump($toFile);
-        $this->getOutput()->debug('Created config file at '.$toFile);
-    }
-
     public function stepCount()
     {
         return 1;
+    }
+
+    /**
+     * @return MoodlePlugin
+     */
+    public function getLocalPluginSingleton()
+    {
+        if ($this->pluginSingleton === null) {
+            $this->pluginSingleton = new MoodlePlugin($this->plugindir);
+        }
+
+        return $this->pluginSingleton;
     }
 }

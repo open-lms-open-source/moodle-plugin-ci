@@ -28,19 +28,26 @@ class VendorInstaller extends AbstractInstaller
     private $moodle;
 
     /**
-     * @var MoodlePlugin
+     * @var MoodlePlugin[]
      */
-    private $plugin;
+    private $plugins;
 
     /**
      * @var Execute
      */
     private $execute;
 
-    public function __construct(Moodle $moodle, MoodlePlugin $plugin, Execute $execute)
+    /**
+     * VendorInstaller constructor.
+     *
+     * @param Moodle         $moodle
+     * @param MoodlePlugin[] $plugins
+     * @param Execute        $execute
+     */
+    public function __construct(Moodle $moodle, array $plugins, Execute $execute)
     {
         $this->moodle  = $moodle;
-        $this->plugin  = $plugin;
+        $this->plugins = $plugins;
         $this->execute = $execute;
     }
 
@@ -49,18 +56,28 @@ class VendorInstaller extends AbstractInstaller
         $this->getOutput()->step('Install global dependencies');
 
         $processes = [];
-        if ($this->plugin->hasUnitTests() || $this->plugin->hasBehatFeatures()) {
+
+        if (empty($this->plugins)) {
+            $this->getOutput()->warning('There is no plugin to prepare');
+        }
+
+        if ($this->shouldInstallComposer()) {
+            $this->getOutput()->info(sprintf('Install composer packages on the Moodle directory: %s', $this->moodle->directory));
             $processes[] = new Process('composer install --no-interaction --prefer-dist', $this->moodle->directory, null, null, null);
         }
-        $processes[] = new Process('npm install -g --no-progress grunt', null, null, null, null);
+        $sudo        = getenv('NPM_SUDO') ? 'sudo ' : '';
+        $processes[] = new Process($sudo.'npm install -g --no-progress grunt', null, null, null, null);
 
         $this->execute->mustRunAll($processes);
 
         $this->getOutput()->step('Install npm dependencies');
 
         $this->execute->mustRun(new Process('npm install --no-progress', $this->moodle->directory, null, null, null));
-        if ($this->plugin->hasNodeDependencies()) {
-            $this->execute->mustRun(new Process('npm install --no-progress', $this->plugin->directory, null, null, null));
+
+        foreach ($this->plugins as $plugin) {
+            if ($plugin->hasNodeDependencies()) {
+                $this->execute->mustRun(new Process('npm install --no-progress', $plugin->directory, null, null, null));
+            }
         }
 
         $this->execute->mustRun(new Process('grunt ignorefiles', $this->moodle->directory, null, null, null));
@@ -69,5 +86,19 @@ class VendorInstaller extends AbstractInstaller
     public function stepCount()
     {
         return 2;
+    }
+
+    /**
+     * @return bool
+     */
+    private function shouldInstallComposer()
+    {
+        foreach ($this->plugins as $plugin) {
+            if ($plugin->hasBehatFeatures() || $plugin->hasUnitTests()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

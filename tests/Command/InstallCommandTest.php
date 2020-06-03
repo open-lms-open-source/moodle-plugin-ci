@@ -14,8 +14,11 @@ namespace MoodlePluginCI\Tests\Command;
 
 use MoodlePluginCI\Command\InstallCommand;
 use MoodlePluginCI\Command\PHPLintCommand;
+use MoodlePluginCI\Installer\InstallerCollection;
 use MoodlePluginCI\Installer\InstallOutput;
+use MoodlePluginCI\Installer\PluginInstallerNoCopy;
 use MoodlePluginCI\Tests\Fake\Installer\DummyInstall;
+use MoodlePluginCI\Tests\Fake\Process\DummyExecute;
 use MoodlePluginCI\Tests\MoodleTestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -38,7 +41,7 @@ class InstallCommandTest extends MoodleTestCase
             '--data'          => $this->tempDir.'/moodledata',
             '--branch'        => 'MOODLE_29_STABLE',
             '--db-type'       => 'mysqli',
-            '--extra-plugins' => $this->tempDir, // Not accurate, but tests more code.
+            '--extra-plugins' => $this->extrapluginDir,
         ]);
 
         return $commandTester;
@@ -48,6 +51,77 @@ class InstallCommandTest extends MoodleTestCase
     {
         $commandTester = $this->executeCommand();
         $this->assertSame(0, $commandTester->getStatusCode());
+    }
+
+    public function testMoodleDirEnv()
+    {
+        $previous = getenv('MOODLE_DIR');
+        try {
+            $fakeMoodleDir = $this->tempDir.'/moodle_fake';
+            putenv('MOODLE_DIR='.$fakeMoodleDir);
+
+            $command          = new InstallCommand($this->tempDir.'/.env');
+            $command->install = new DummyInstall(new InstallOutput());
+
+            $application = new Application();
+            $application->add($command);
+
+            $input   = new ArrayInput(
+                [
+                    '--no-clone' => true,
+                    '--db-type'  => 'mysqli',
+                ], $command->getDefinition()
+            );
+            $factory = $command->initializeInstallerFactory($input);
+            $this->assertSame($fakeMoodleDir, $factory->moodle->directory);
+        } finally {
+            putenv('MOODLE_DIR='.$previous);
+        }
+    }
+
+    public function testDbCreateSkipFlag()
+    {
+        $command          = new InstallCommand($this->tempDir.'/.env');
+        $command->install = new DummyInstall(new InstallOutput());
+
+        $application = new Application();
+        $application->add($command);
+
+        $input            = new ArrayInput(
+            [
+                '--db-create-skip' => true,
+                '--db-type'        => 'mysqli',
+                '--no-clone'       => true,
+            ], $command->getDefinition()
+        );
+        $command->execute = new DummyExecute();
+        $factory          = $command->initializeInstallerFactory($input);
+        $collection       = new InstallerCollection(new InstallOutput());
+
+        $factory->addInstallers($collection);
+        $this->assertFalse($factory->createDb);
+        $this->assertInstanceOf(PluginInstallerNoCopy::class, $collection->all()[1]);
+    }
+
+    public function testNoConfigRewriteFlag()
+    {
+        $command          = new InstallCommand($this->tempDir.'/.env');
+        $command->install = new DummyInstall(new InstallOutput());
+
+        $application = new Application();
+        $application->add($command);
+
+        $input            = new ArrayInput(
+            [
+                '--db-create-skip'    => true,
+                '--db-type'           => 'mysqli',
+                '--no-clone'          => true,
+                '--no-config-rewrite' => true,
+            ], $command->getDefinition()
+        );
+        $command->execute = new DummyExecute();
+        $factory          = $command->initializeInstallerFactory($input);
+        $this->assertTrue($factory->noConfigRewrite);
     }
 
     /**
@@ -83,7 +157,9 @@ class InstallCommandTest extends MoodleTestCase
         $dumper = $command->initializePluginConfigDumper($input);
         $dumper->dump($actual);
 
-        $expected = $this->dumpFile('expected.yml', <<<'EOT'
+        $expected = $this->dumpFile(
+            'expected.yml',
+            <<<'EOT'
 filter:
     notPaths: [global/path]
     notNames: [global_name.php]
@@ -92,7 +168,7 @@ filter-phplint:
     notNames: [foo.php, bar.php]
 
 EOT
-);
+        );
 
         $this->assertFileEquals($expected, $actual);
     }

@@ -59,6 +59,14 @@ class MoodleInstaller extends AbstractInstaller
      * @var string
      */
     private $dataDir;
+    /**
+     * @var bool
+     */
+    private $createDb;
+    /**
+     * @var bool
+     */
+    private $rewriteConfig;
 
     /**
      * @param Execute          $execute
@@ -68,25 +76,34 @@ class MoodleInstaller extends AbstractInstaller
      * @param string           $repo
      * @param string           $branch
      * @param string           $dataDir
+     * @param bool             $createDb
+     * @param bool             $rewriteConfig
      */
-    public function __construct(Execute $execute, AbstractDatabase $database, Moodle $moodle, MoodleConfig $config, $repo, $branch, $dataDir)
+    public function __construct(Execute $execute, AbstractDatabase $database, Moodle $moodle, MoodleConfig $config, $repo, $branch, $dataDir, $createDb = true, $rewriteConfig = true)
     {
-        $this->execute  = $execute;
-        $this->database = $database;
-        $this->moodle   = $moodle;
-        $this->config   = $config;
-        $this->repo     = $repo;
-        $this->branch   = $branch;
-        $this->dataDir  = $dataDir;
+        $this->execute       = $execute;
+        $this->database      = $database;
+        $this->moodle        = $moodle;
+        $this->config        = $config;
+        $this->repo          = $repo;
+        $this->branch        = $branch;
+        $this->dataDir       = $dataDir;
+        $this->createDb      = $createDb;
+        $this->rewriteConfig = $rewriteConfig;
     }
 
     public function install()
     {
-        $this->getOutput()->step('Cloning Moodle');
+        if ($this->repo && $this->branch) {
+            $this->getOutput()->step('Cloning Moodle');
 
-        $process = new Process(sprintf('git clone --depth=1 --branch %s %s %s', $this->branch, $this->repo, $this->moodle->directory));
-        $process->setTimeout(null);
-        $this->execute->mustRun($process);
+            $process = new Process(sprintf('git clone --depth=1 --branch %s %s %s', $this->branch, $this->repo,
+                $this->moodle->directory));
+            $process->setTimeout(null);
+            $this->execute->mustRun($process);
+        } else {
+            $this->getOutput()->step('Using local Moodle setup');
+        }
 
         // Expand the path to Moodle so all other installers use absolute path.
         $this->moodle->directory = $this->expandPath($this->moodle->directory);
@@ -109,12 +126,16 @@ class MoodleInstaller extends AbstractInstaller
         $filesystem->mkdir($dirs);
         $filesystem->chmod($dirs, 0777);
 
-        $this->getOutput()->debug('Create Moodle database');
-        $this->execute->mustRun($this->database->getCreateDatabaseCommand());
+        if ($this->createDb) {
+            $this->getOutput()->debug('Create Moodle database');
+            $this->execute->mustRun($this->database->getCreateDatabaseCommand());
+        }
 
-        $this->getOutput()->debug('Creating Moodle\'s config file');
-        $contents = $this->config->createContents($this->database, $this->expandPath($this->dataDir));
-        $this->config->dump($this->moodle->directory.'/config.php', $contents);
+        if ($this->rewriteConfig) {
+            $this->getOutput()->debug('Creating Moodle\'s config file');
+            $contents = $this->config->createContents($this->database, $this->expandPath($this->dataDir));
+            $this->config->dump($this->moodle->directory.'/config.php', $contents);
+        }
 
         $this->addEnv('MOODLE_DIR', $this->moodle->directory);
 

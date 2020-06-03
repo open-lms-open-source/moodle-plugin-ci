@@ -23,15 +23,24 @@ class MoodleTestCase extends FilesystemTestCase
      * @var string
      */
     protected $pluginDir;
+    /**
+     * @var string
+     */
+    protected $extrapluginDir;
 
+    /**
+     * Setup.
+     */
     protected function setUp()
     {
         parent::setUp();
 
-        $this->moodleDir = $this->tempDir;
-        $this->pluginDir = $this->tempDir.'/local/travis';
+        $this->moodleDir      = $this->tempDir.'/moodle';
+        $this->pluginDir      = $this->tempDir.'/local/travis';
+        $this->extrapluginDir = $this->tempDir.'/extraplugin';
 
         $this->fs->mirror(__DIR__.'/Fixture/moodle', $this->moodleDir);
         $this->fs->mirror(__DIR__.'/Fixture/moodle-local_travis', $this->pluginDir);
+        $this->fs->mirror(__DIR__.'/Fixture/moodle-local_emptyplugin', $this->extrapluginDir.'/local/emptyplugin');
     }
 }

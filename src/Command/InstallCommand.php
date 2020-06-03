@@ -13,7 +13,6 @@
 namespace MoodlePluginCI\Command;
 
 use MoodlePluginCI\Bridge\Moodle;
-use MoodlePluginCI\Bridge\MoodlePlugin;
 use MoodlePluginCI\Installer\ConfigDumper;
 use MoodlePluginCI\Installer\Database\DatabaseResolver;
 use MoodlePluginCI\Installer\EnvDumper;
@@ -75,10 +74,11 @@ class InstallCommand extends Command
         $paths  = getenv('IGNORE_PATHS') !== false ? getenv('IGNORE_PATHS') : null;
         $names  = getenv('IGNORE_NAMES') !== false ? getenv('IGNORE_NAMES') : null;
         $extra  = getenv('EXTRA_PLUGINS_DIR') !== false ? getenv('EXTRA_PLUGINS_DIR') : null;
+        $moodle = getenv('MOODLE_DIR') !== false ? getenv('MOODLE_DIR') : 'moodle';
 
         $this->setName('install')
             ->setDescription('Install everything required for CI testing')
-            ->addOption('moodle', null, InputOption::VALUE_REQUIRED, 'Clone Moodle to this directory', 'moodle')
+            ->addOption('moodle', null, InputOption::VALUE_REQUIRED, 'Clone Moodle to this directory', $moodle)
             ->addOption('data', null, InputOption::VALUE_REQUIRED, 'Directory create for Moodle data files', 'moodledata')
             ->addOption('repo', null, InputOption::VALUE_REQUIRED, 'Moodle repository to clone', $repo)
             ->addOption('branch', null, InputOption::VALUE_REQUIRED, 'Moodle git branch to clone, EG: MOODLE_29_STABLE', $branch)
@@ -88,10 +88,13 @@ class InstallCommand extends Command
             ->addOption('db-pass', null, InputOption::VALUE_REQUIRED, 'Database pass', '')
             ->addOption('db-name', null, InputOption::VALUE_REQUIRED, 'Database name', 'moodle')
             ->addOption('db-host', null, InputOption::VALUE_REQUIRED, 'Database host', 'localhost')
+            ->addOption('db-create-skip', null, InputOption::VALUE_NONE, 'Skip database creation')
             ->addOption('not-paths', null, InputOption::VALUE_REQUIRED, 'CSV of file paths to exclude', $paths)
             ->addOption('not-names', null, InputOption::VALUE_REQUIRED, 'CSV of file names to exclude', $names)
             ->addOption('extra-plugins', null, InputOption::VALUE_REQUIRED, 'Directory of extra plugins to install', $extra)
-            ->addOption('no-init', null, InputOption::VALUE_NONE, 'Prevent PHPUnit and Behat initialization');
+            ->addOption('no-init', null, InputOption::VALUE_NONE, 'Prevent PHPUnit and Behat initialization')
+            ->addOption('no-clone', null, InputOption::VALUE_NONE, 'Prevent Cloning Moodle')
+            ->addOption('no-config-rewrite', null, InputOption::VALUE_NONE, 'Prevent generating a new Moodle config.php file');
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)
@@ -151,17 +154,27 @@ class InstallCommand extends Command
             $pluginsDir = realpath($validate->directory($pluginsDir));
         }
 
-        $factory             = new InstallerFactory();
-        $factory->moodle     = new Moodle($input->getOption('moodle'));
-        $factory->plugin     = new MoodlePlugin($pluginDir);
-        $factory->execute    = $this->execute;
-        $factory->repo       = $validate->gitUrl($input->getOption('repo'));
-        $factory->branch     = $validate->gitBranch($input->getOption('branch'));
-        $factory->dataDir    = $input->getOption('data');
-        $factory->dumper     = $this->initializePluginConfigDumper($input);
-        $factory->pluginsDir = $pluginsDir;
-        $factory->noInit     = $input->getOption('no-init');
-        $factory->database   = $resolver->resolveDatabase(
+        $factory                    = new InstallerFactory();
+        $factory->moodle            = new Moodle($input->getOption('moodle'));
+        $factory->execute           = $this->execute;
+        $factory->createDb          = !$input->getOption('db-create-skip');
+        $factory->plugininmoodledir = (bool) $input->getOption('no-clone');
+
+        if (!$input->getOption('no-clone')) {
+            $factory->repo   = $validate->gitUrl($input->getOption('repo'));
+            $factory->branch = $validate->gitBranch($input->getOption('branch'));
+        }
+
+        if (!$factory->plugininmoodledir) {
+            $factory->pluginDir = $pluginDir;
+        }
+
+        $factory->dataDir             = $input->getOption('data');
+        $factory->dumper              = $this->initializePluginConfigDumper($input);
+        $factory->pluginsDir          = $pluginsDir;
+        $factory->noInit              = $input->getOption('no-init');
+        $factory->noConfigRewrite     = (bool) $input->getOption('no-config-rewrite');
+        $factory->database            = $resolver->resolveDatabase(
             $input->getOption('db-type'),
             $input->getOption('db-name'),
             $input->getOption('db-user'),

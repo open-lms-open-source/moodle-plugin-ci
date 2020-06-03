@@ -813,7 +813,7 @@ Install everything required for CI testing
 
 ### Usage
 
-* `install [--moodle MOODLE] [--data DATA] [--repo REPO] [--branch BRANCH] [--plugin PLUGIN] [--db-type DB-TYPE] [--db-user DB-USER] [--db-pass DB-PASS] [--db-name DB-NAME] [--db-host DB-HOST] [--not-paths NOT-PATHS] [--not-names NOT-NAMES] [--extra-plugins EXTRA-PLUGINS] [--no-init]`
+* `install [--moodle MOODLE] [--data DATA] [--repo REPO] [--branch BRANCH] [--plugin PLUGIN] [--db-type DB-TYPE] [--db-user DB-USER] [--db-pass DB-PASS] [--db-name DB-NAME] [--db-host DB-HOST] [--db-create-skip] [--not-paths NOT-PATHS] [--not-names NOT-NAMES] [--extra-plugins EXTRA-PLUGINS] [--no-init] [--no-clone] [--no-config-rewrite]`
 
 Install everything required for CI testing
 
@@ -909,6 +909,15 @@ Database host
 * Is multiple: no
 * Default: `'localhost'`
 
+#### `--db-create-skip`
+
+Skip database creation
+
+* Accept value: no
+* Is value required: no
+* Is multiple: no
+* Default: `false`
+
 #### `--not-paths`
 
 CSV of file paths to exclude
@@ -939,6 +948,24 @@ Directory of extra plugins to install
 #### `--no-init`
 
 Prevent PHPUnit and Behat initialization
+
+* Accept value: no
+* Is value required: no
+* Is multiple: no
+* Default: `false`
+
+#### `--no-clone`
+
+Prevent Cloning Moodle
+
+* Accept value: no
+* Is value required: no
+* Is multiple: no
+* Default: `false`
+
+#### `--no-config-rewrite`
+
+Prevent generating a new Moodle config.php file
 
 * Accept value: no
 * Is value required: no
